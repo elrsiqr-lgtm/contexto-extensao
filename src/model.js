@@ -65,8 +65,20 @@
     };
   }
 
+  /** O histórico guarda só os últimos 7 dias (notas e demandas NÃO são apagadas). */
+  const HISTORY_DAYS = 7;
+
+  /** Remove do histórico o que passou de 7 dias. Devolve quantos registros saíram. */
+  function pruneHistory(conv, now = Date.now()) {
+    const limit = now - HISTORY_DAYS * 24 * 60 * 60 * 1000;
+    const before = conv.history.length;
+    conv.history = conv.history.filter((e) => Date.parse(e.at) >= limit);
+    return before - conv.history.length;
+  }
+
   function log(conv, type, text, at) {
     conv.history.push({ id: uid(), at: at || nowIso(), type, text });
+    pruneHistory(conv);
   }
 
   /**
@@ -139,7 +151,7 @@
   }
 
   NS.model = {
-    uid, normalizePhone, formatPhone, looksLikePhone, nameKey,
+    HISTORY_DAYS, pruneHistory, uid, normalizePhone, formatPhone, looksLikePhone, nameKey,
     emptyConversation, setSummary, addDemand, editDemand, toggleDemand, removeDemand,
   };
 })();

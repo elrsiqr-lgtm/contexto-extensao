@@ -59,7 +59,7 @@
   const todayStr = () => new Date().toLocaleDateString('sv-SE'); // AAAA-MM-DD local
 
   const HISTORY_LABEL = {
-    summary: 'Resumo atualizado',
+    summary: 'Notas atualizadas',
     demand_added: 'Demanda criada',
     demand_edited: 'Demanda alterada',
     demand_due: 'Prazo alterado',
@@ -87,32 +87,95 @@
     document.documentElement.append(host);
 
     // elementos persistentes (mantêm o que você digitou entre redesenhos)
-    const summaryEl = el('textarea', { placeholder: 'Escreva aqui o resumo da conversa…', rows: 4 });
+    const summaryEl = el('textarea', { placeholder: 'Escreva aqui as notas importantes…', rows: 4 });
     summaryEl.addEventListener('input', () => h.onSummaryInput(summaryEl.value));
     summaryEl.addEventListener('blur', () => h.onSummaryBlur());
     const summaryMeta = el('span', { class: 'meta' });
 
+    // ---- formulário de nova demanda (sem popup escondido: atalhos + campo de data VISÍVEL)
     const demandInput = el('input', { type: 'text', placeholder: 'Nova demanda…', maxlength: 300 });
-    const dueInput = el('input', { type: 'date' });
-    const dueLabel = el('span', {}, 'Prazo');
-    const duePill = el('span', { class: 'pill due', role: 'button', tabindex: '0', title: 'Escolher prazo' }, el('span', { html: icon('calendar'), style: 'display:contents' }), dueLabel, dueInput);
-    duePill.addEventListener('click', () => openPicker(dueInput));
-    duePill.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openPicker(dueInput); } });
-    const submitDemand = () => {
+    const dueInput = el('input', { type: 'date', class: 'due-native', 'aria-label': 'Data do prazo' });
+    const addHint = el('div', { class: 'err', style: 'display:none;margin:0' });
+    const otherLabel = el('span', {}, 'Outra data');
+    let dueValue = null;
+    let otherOpen = false;
+
+    const plusDays = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return d.toLocaleDateString('sv-SE'); };
+    const chips = [['Hoje', 0], ['Amanhã', 1], ['Em 7 dias', 7]].map(([label, n]) => {
+      const b = el('button', { class: 'chip', type: 'button', onclick: () => { h.onUiEvent && h.onUiEvent(`clique em ${label}`); setDue(dueValue === plusDays(n) ? null : plusDays(n)); } }, label);
+      b.dataset.n = String(n);
+      return b;
+    });
+    const otherChip = el('button', { class: 'chip', type: 'button',
+      onclick: () => { h.onUiEvent && h.onUiEvent('clique em Outra data'); otherOpen = !otherOpen; paintDue(); if (otherOpen) dueInput.focus(); } },
+      el('span', { html: icon('calendar'), style: 'display:contents' }), otherLabel);
+    const dateRow = el('div', { class: 'date-row', style: 'display:none' }, dueInput);
+
+    function paintDue() {
+      let preset = false;
+      for (const c of chips) {
+        const on = !!dueValue && plusDays(Number(c.dataset.n)) === dueValue;
+        c.classList.toggle('on', on);
+        preset = preset || on;
+      }
+      const custom = !!dueValue && !preset;
+      otherChip.classList.toggle('on', custom);
+      otherLabel.textContent = custom ? fmtDue(dueValue) : 'Outra data';
+      dateRow.style.display = otherOpen || custom ? 'block' : 'none';
+    }
+    function setDue(v, fromInput) {
+      dueValue = v || null;
+      if (!fromInput) dueInput.value = dueValue || '';
+      paintDue();
+    }
+    dueInput.addEventListener('change', () => setDue(dueInput.value || null, true));
+    dueInput.addEventListener('input', () => setDue(dueInput.value || null, true));
+
+    const showHint = (msg) => { addHint.textContent = msg; addHint.style.display = msg ? 'block' : 'none'; };
+    demandInput.addEventListener('input', () => showHint(''));
+    const submitDemand = async () => {
       const text = demandInput.value.trim();
-      if (!text) return;
-      h.onAddDemand(text, dueInput.value || null);
+      if (!text) { h.onUiEvent && h.onUiEvent('clique em Adicionar demanda (campo vazio)'); showHint('Escreva a demanda antes de adicionar.'); demandInput.focus(); return; }
+      showHint('');
+      h.onUiEvent && h.onUiEvent('clique em Adicionar demanda');
+      const ok = await h.onAddDemand(text, dueValue);
+      if (ok === false) return; // o painel já explicou o motivo
       demandInput.value = '';
-      dueInput.value = '';
-      dueLabel.textContent = 'Prazo';
+      otherOpen = false;
+      setDue(null);
+      demandInput.focus();
     };
-    const syncDueLabel = () => { dueLabel.textContent = dueInput.value ? fmtDue(dueInput.value) : 'Prazo'; };
-    dueInput.addEventListener('change', syncDueLabel);
-    dueInput.addEventListener('input', syncDueLabel);
     demandInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') submitDemand(); });
-    const addRow = el('div', { class: 'add' },
-      demandInput, el('div', { class: 'due-wrap' }, duePill),
-      el('button', { class: 'go', type: 'button', 'aria-label': 'Adicionar demanda', title: 'Adicionar', html: icon('plus'), onclick: submitDemand }));
+    const addRow = el('div', { class: 'addbox' },
+      demandInput,
+      el('div', { class: 'chips' }, ...chips, otherChip),
+      dateRow,
+      addHint,
+      el('button', { class: 'btn full', type: 'button', onclick: submitDemand },
+        el('span', { html: icon('plus'), style: 'display:contents' }), 'Adicionar demanda'));
+    paintDue();
+
+    // ---- Nunca redesenhar o painel NO MEIO de um clique.
+    // Se o painel se redesenha entre o "apertar" e o "soltar" do mouse, o botão pressionado sai da tela
+    // e o clique se perde. Por isso, enquanto o ponteiro está pressionado, o redesenho espera a soltura.
+    let pointerDown = false;
+    let queuedPaint = null;
+    let pointerGuard = null;
+    const releasePointer = () => {
+      clearTimeout(pointerGuard);
+      pointerDown = false; // o "click" vem logo depois: redesenhos disparados por ele já podem acontecer na hora
+      setTimeout(() => {   // e o que ficou esperando é desenhado só depois que o "click" foi entregue
+        if (queuedPaint) { const run = queuedPaint; queuedPaint = null; run(); }
+      }, 0);
+    };
+    window.addEventListener('pointerdown', (e) => {
+      if (!e.composedPath().includes(host)) return;
+      pointerDown = true;
+      clearTimeout(pointerGuard);
+      pointerGuard = setTimeout(releasePointer, 3000); // segurança: nunca travar o painel
+    }, true);
+    for (const type of ['pointerup', 'pointercancel', 'dragend']) window.addEventListener(type, () => { if (pointerDown) releasePointer(); }, true);
+    window.addEventListener('blur', () => { if (pointerDown) releasePointer(); });
 
     const phoneInput = el('input', { type: 'tel', placeholder: '+55 11 91234-5678' });
 
@@ -168,14 +231,19 @@
         txt.replaceWith(inp); inp.focus(); inp.select();
       });
 
-      const due = el('input', { type: 'date', value: d.due || '' });
-      due.addEventListener('change', () => h.onEditDemand(d.id, { due: due.value || null }));
-      const duePillEl = el('span', { class: `pill due${late ? ' late' : ''}` },
+      const duePillEl = el('button', { class: `pill due${late ? ' late' : ''}`, type: 'button', title: 'Alterar prazo' },
         el('span', { html: icon('calendar'), style: 'display:contents' }),
-        d.due ? fmtDue(d.due) + (late ? ' · atrasada' : '') : 'Sem prazo', due);
-      duePillEl.setAttribute('role', 'button'); duePillEl.setAttribute('tabindex', '0'); duePillEl.title = 'Alterar prazo';
-      duePillEl.addEventListener('click', () => openPicker(due));
-      duePillEl.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openPicker(due); } });
+        d.due ? fmtDue(d.due) + (late ? ' · atrasada' : '') : 'Sem prazo');
+      duePillEl.addEventListener('click', () => {
+        const inp = el('input', { type: 'date', class: 'due-edit', value: d.due || '', 'aria-label': 'Prazo' });
+        inp.addEventListener('change', () => h.onEditDemand(d.id, { due: inp.value || null }));
+        inp.addEventListener('keydown', (e) => { if (e.key === 'Escape') h.rerender(); });
+        const box = el('span', { class: 'due-editor' }, inp,
+          el('button', { class: 'link', type: 'button', onclick: () => h.onEditDemand(d.id, { due: null }) }, 'Sem prazo'),
+          el('button', { class: 'link', type: 'button', onclick: () => h.rerender() }, 'Fechar'));
+        duePillEl.replaceWith(box);
+        inp.focus();
+      });
 
       const stamp = d.done
         ? `Concluída ${fmtStamp(d.doneAt)}`
@@ -196,7 +264,7 @@
     function summaryCard(conv) {
       summaryMeta.textContent = conv.summary.updatedAt ? `Atualizado ${fmtStamp(conv.summary.updatedAt)}` : '';
       return el('section', { class: 'card' },
-        el('div', { class: 'card-h' }, el('span', { html: icon('layers'), style: 'display:contents' }), el('h3', {}, 'Resumo da conversa'), summaryMeta),
+        el('div', { class: 'card-h' }, el('span', { html: icon('layers'), style: 'display:contents' }), el('h3', {}, 'Notas importantes'), summaryMeta),
         summaryEl);
     }
 
@@ -221,25 +289,38 @@
       return card;
     }
 
+    let confirmClear = false;
     function historyCard(conv) {
       const items = [...conv.history].reverse();
       const card = el('section', { class: 'card' },
         el('div', { class: 'card-h' }, el('span', { html: icon('clock'), style: 'display:contents' }), el('h3', {}, 'Histórico'),
-          el('span', { class: 'meta' }, `${items.length} registro${items.length === 1 ? '' : 's'}`)));
-      if (!items.length) { card.append(el('div', { class: 'empty' }, 'As alterações aparecem aqui, com data e hora.')); return card; }
-      card.append(el('button', { class: `fold${showHistory ? ' open' : ''}`, style: 'margin-top:0', type: 'button', onclick: () => { showHistory = !showHistory; h.rerender(); } },
-        showHistory ? 'Ocultar' : 'Ver evolução', el('span', { html: icon('chevron'), style: 'display:contents' })));
-      if (showHistory) {
-        card.append(el('ul', { class: 'timeline', style: 'margin-top:14px' }, items.slice(0, 60).map((e) =>
-          el('li', { class: `tl t-${e.type}` },
-            el('div', { class: 'tl-h' }, el('span', { class: 'pill' }, HISTORY_LABEL[e.type] || e.type), el('span', { class: 'tl-t' }, fmtStamp(e.at))),
-            e.text ? el('div', { class: 'tl-x' }, e.text) : null))));
+          el('span', { class: 'meta' }, `${items.length} registro${items.length === 1 ? '' : 's'}`),
+          items.length ? el('button', { class: 'link', type: 'button', onclick: () => { confirmClear = true; h.rerender(); } }, 'Limpar') : null));
+      if (confirmClear && items.length) {
+        card.append(el('div', { class: 'confirm' },
+          el('p', {}, 'Apagar todo o histórico desta conversa? As notas e as demandas não são apagadas.'),
+          el('div', { class: 'row' },
+            el('button', { class: 'btn', type: 'button', onclick: () => { confirmClear = false; h.onClearHistory(); } }, 'Sim, limpar'),
+            el('button', { class: 'btn ghost', type: 'button', onclick: () => { confirmClear = false; h.rerender(); } }, 'Cancelar'))));
       }
+      if (!items.length) {
+        card.append(el('div', { class: 'empty' }, 'As alterações aparecem aqui, com data e hora.'));
+      } else {
+        card.append(el('button', { class: `fold${showHistory ? ' open' : ''}`, style: 'margin-top:0', type: 'button', onclick: () => { showHistory = !showHistory; h.rerender(); } },
+          showHistory ? 'Ocultar' : 'Ver evolução', el('span', { html: icon('chevron'), style: 'display:contents' })));
+        if (showHistory) {
+          card.append(el('ul', { class: 'timeline', style: 'margin-top:14px' }, items.slice(0, 60).map((e) =>
+            el('li', { class: `tl t-${e.type}` },
+              el('div', { class: 'tl-h' }, el('span', { class: 'pill' }, HISTORY_LABEL[e.type] || e.type), el('span', { class: 'tl-t' }, fmtStamp(e.at))),
+              e.text ? el('div', { class: 'tl-x' }, e.text) : null))));
+        }
+      }
+      card.append(el('div', { class: 'meta', style: `margin-top:${items.length ? 12 : 4}px` }, `O histórico guarda só os últimos ${M.HISTORY_DAYS} dias.`));
       return card;
     }
 
     // ------------------------------------------------------------ API pública
-    return {
+    const api = {
       setOpen(open) {
         host.classList.toggle('open', open);
         document.documentElement.classList.toggle('contexto-open', open);
@@ -318,7 +399,7 @@
           heroClient(name, null),
           el('section', { class: 'card prompt need' },
             el('div', { class: 'card-h' }, el('span', { html: icon('lock'), style: 'display:contents' }), el('h3', {}, 'Confirme o número para começar')),
-            el('p', {}, `Resumo e demandas ficam bloqueados até você confirmar o número de “${name}”. Digite uma vez e eu lembro daqui em diante.`),
+            el('p', {}, `Notas e demandas ficam bloqueadas até você confirmar o número de “${name}”. Digite uma vez e eu lembro daqui em diante.`),
             suggested ? el('div', { class: 'suggest' },
               el('div', { class: 'suggest-t' }, 'Encontrei este número na ficha do contato:'),
               el('div', { class: 'suggest-n' }, M.formatPhone(suggested)),
@@ -326,7 +407,7 @@
               el('div', { class: 'suggest-o' }, 'ou digite outro abaixo')) : null,
             el('div', { class: 'row' }, phoneInput, el('button', { class: 'btn', type: 'button', onclick: submit }, 'Salvar')),
             error ? el('div', { class: 'err' }, error) : null),
-          locked('layers', 'Resumo da conversa', 'Disponível depois de confirmar o número'),
+          locked('layers', 'Notas importantes', 'Disponível depois de confirmar o número'),
           locked('bars', 'Demandas pendentes', 'Disponível depois de confirmar o número'));
         if (!keepFocus) setTimeout(() => phoneInput.focus(), 50);
       },
@@ -336,13 +417,25 @@
        * (aí o texto do resumo é trocado mesmo com o campo em foco).
        */
       showConversation(conv, display, resetSummary) {
+        if (resetSummary) confirmClear = false;
         if (resetSummary || summaryEl.getRootNode().activeElement !== summaryEl) summaryEl.value = conv.summary.text;
-        // ordem: topo -> resumo -> demandas pendentes -> histórico
+        // ordem: topo -> notas -> demandas pendentes -> histórico
         scroll.replaceChildren(heroClient(display.name, conv.phone), summaryCard(conv), demandsCard(conv), historyCard(conv));
       },
 
-      resetAddForm() { demandInput.value = ''; dueInput.value = ''; dueLabel.textContent = 'Prazo'; },
+      resetAddForm() { demandInput.value = ''; otherOpen = false; setDue(null); showHint(''); },
     };
+
+    // métodos que redesenham: se o mouse está pressionado, espera soltar (o último pedido vale)
+    for (const name of ['showEmpty', 'showLoading', 'showPrompt', 'showConversation', 'showStale', 'showLoadError']) {
+      const fn = api[name];
+      api[name] = (...args) => {
+        if (pointerDown) { queuedPaint = () => fn.apply(api, args); return; }
+        queuedPaint = null;
+        fn.apply(api, args);
+      };
+    }
+    return api;
   }
 
   NS.ui = { mount };

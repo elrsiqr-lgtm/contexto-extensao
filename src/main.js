@@ -36,6 +36,13 @@
     ui.showStale();
   }
 
+  // Últimas ações no painel (para o diagnóstico): ajuda a entender "cliquei e nada aconteceu".
+  const recentActions = [];
+  function track(acao, resultado) {
+    recentActions.push({ quando: new Date().toISOString(), acao, resultado });
+    if (recentActions.length > 15) recentActions.shift();
+  }
+
   // Guarda os últimos erros inesperados para o botão de diagnóstico (rodapé do painel).
   const recentErrors = [];
 
@@ -100,6 +107,7 @@
       stored.name = ident.name; // contato salvo ganhou/mudou de nome
       await storage.saveConversation(stored);
     }
+    if (M.pruneHistory(stored) > 0) await storage.saveConversation(stored); // histórico: só 7 dias
     conv = stored;
     display = { name: M.looksLikePhone(ident.name) && conv.name ? conv.name : ident.name };
     ui.resetAddForm();
@@ -117,6 +125,7 @@
 
   const handlers = {
     rerender: () => rerender(false),
+    onUiEvent(nome) { track(nome, 'recebido'); },
     onRetry() { currentIdentKey = ''; check(); },
 
     async onToggle() {
@@ -137,7 +146,20 @@
       if (conv && pendingSummary !== null) flushSummary(true).then(() => rerender());
     },
 
-    async onAddDemand(text, due) { if (!conv) return; M.addDemand(conv, text, due); await persist(); rerender(); },
+    async onAddDemand(text, due) {
+      if (!conv) { track('adicionar demanda', 'sem conversa carregada'); ui.flash('Confirme o número do cliente antes de adicionar.'); return false; }
+      M.addDemand(conv, text, due);
+      await persist(); rerender();
+      track('adicionar demanda', due ? `ok, prazo ${due}` : 'ok');
+      return true;
+    },
+    async onClearHistory() {
+      if (!conv) return;
+      conv.history = [];
+      await persist(); rerender();
+      track('limpar histórico', 'ok');
+      ui.flash('Histórico limpo');
+    },
     async onEditDemand(id, patch) { if (!conv) return; M.editDemand(conv, id, patch); await persist(); rerender(); },
     async onToggleDemand(id) { if (!conv) return; M.toggleDemand(conv, id); await persist(); rerender(); },
     async onRemoveDemand(id) { if (!conv) return; M.removeDemand(conv, id); await persist(); rerender(); },
@@ -158,6 +180,7 @@
         quando: new Date().toISOString(),
         cabecalho: detector.debug(),
         painel: conv ? { telefone: conv.phone } : 'sem conversa carregada',
+        acoes: recentActions,
         erros: recentErrors.length ? recentErrors : 'nenhum erro registrado nesta aba',
       };
       const text = JSON.stringify(info, null, 2);
@@ -239,6 +262,15 @@
     try { const s = await storage.getUi(); open = s.open !== false; } catch (e) { onError(e); }
     ui.setOpen(open);
     ui.showEmpty();
+
+    // Limpeza do histórico com mais de 7 dias em todas as conversas (uma vez por abertura do WhatsApp Web)
+    (async () => {
+      try {
+        for (const c of await storage.listConversations()) {
+          if (M.pruneHistory(c) > 0) await storage.saveConversation(c);
+        }
+      } catch (e) { onError(e); }
+    })();
 
     observer = new MutationObserver(schedule);
     observer.observe(document.body, { childList: true, subtree: true, characterData: true });
