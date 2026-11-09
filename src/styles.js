@@ -106,7 +106,8 @@ textarea:focus, input:focus { border-color: var(--c-main); box-shadow: 0 0 0 3px
 .sub { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .due { position: relative; cursor: pointer; }
 .due svg { width: 12px; height: 12px; }
-.due input { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
+.due input { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; pointer-events: none; }  /* o clique é tratado pela etiqueta */
+.due:focus-visible { outline: 2px solid var(--c-main); outline-offset: 2px; }
 .stamp { font-size: 10px; color: var(--c-mid); }
 .x { width: 22px; height: 22px; border-radius: 50%; color: var(--c-mid); opacity: 0; display: flex; align-items: center; justify-content: center; }
 .item:hover .x { opacity: 1; }

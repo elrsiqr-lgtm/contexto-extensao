@@ -51,6 +51,10 @@
     const sameYear = d.getFullYear() === new Date().getFullYear();
     return d.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', ...(sameYear ? {} : { year: '2-digit' }), hour: '2-digit', minute: '2-digit' });
   };
+  /** Abre o calendário do navegador. Chrome só abre sozinho ao clicar no ícone do campo; aqui forçamos. */
+  function openPicker(input) {
+    try { input.showPicker(); } catch (_) { input.focus(); input.click(); }
+  }
   const fmtDue = (s) => (s ? s.split('-').reverse().slice(0, 2).join('/') : '');
   const todayStr = () => new Date().toLocaleDateString('sv-SE'); // AAAA-MM-DD local
 
@@ -91,7 +95,9 @@
     const demandInput = el('input', { type: 'text', placeholder: 'Nova demanda…', maxlength: 300 });
     const dueInput = el('input', { type: 'date' });
     const dueLabel = el('span', {}, 'Prazo');
-    const duePill = el('span', { class: 'pill due' }, el('span', { html: icon('calendar'), style: 'display:contents' }), dueLabel, dueInput);
+    const duePill = el('span', { class: 'pill due', role: 'button', tabindex: '0', title: 'Escolher prazo' }, el('span', { html: icon('calendar'), style: 'display:contents' }), dueLabel, dueInput);
+    duePill.addEventListener('click', () => openPicker(dueInput));
+    duePill.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openPicker(dueInput); } });
     const submitDemand = () => {
       const text = demandInput.value.trim();
       if (!text) return;
@@ -100,7 +106,9 @@
       dueInput.value = '';
       dueLabel.textContent = 'Prazo';
     };
-    dueInput.addEventListener('change', () => { dueLabel.textContent = dueInput.value ? fmtDue(dueInput.value) : 'Prazo'; });
+    const syncDueLabel = () => { dueLabel.textContent = dueInput.value ? fmtDue(dueInput.value) : 'Prazo'; };
+    dueInput.addEventListener('change', syncDueLabel);
+    dueInput.addEventListener('input', syncDueLabel);
     demandInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') submitDemand(); });
     const addRow = el('div', { class: 'add' },
       demandInput, el('div', { class: 'due-wrap' }, duePill),
@@ -165,7 +173,9 @@
       const duePillEl = el('span', { class: `pill due${late ? ' late' : ''}` },
         el('span', { html: icon('calendar'), style: 'display:contents' }),
         d.due ? fmtDue(d.due) + (late ? ' · atrasada' : '') : 'Sem prazo', due);
-      due.addEventListener('click', (e) => { try { due.showPicker(); } catch (_) {} e.stopPropagation(); });
+      duePillEl.setAttribute('role', 'button'); duePillEl.setAttribute('tabindex', '0'); duePillEl.title = 'Alterar prazo';
+      duePillEl.addEventListener('click', () => openPicker(due));
+      duePillEl.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openPicker(due); } });
 
       const stamp = d.done
         ? `Concluída ${fmtStamp(d.doneAt)}`
