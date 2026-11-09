@@ -15,8 +15,9 @@
  *    { loading: true }                     -> conversa abrindo (nome ainda não apareceu no cabeçalho)
  *    { name: "+55 11 91234-5678", phone: "5511912345678" }   -> contato não salvo
  *    { name: "Maria Silva",       phone: null }               -> contato salvo (número desconhecido)
- *    { name: "Maria Silva",       phone: "5511..." }          -> contato salvo e número achado no
- *                                                                painel "Dados do contato" (se você o abriu)
+ *    { name: "Maria Silva",       phone: null, suggestedPhone: "5511..." }
+ *                                         -> contato salvo; o número só é SUGERIDO (achado no painel
+ *                                            "Dados do contato" se o usuário o abriu) e precisa ser confirmado
  */
 (() => {
   const NS = (window.CONTEXTO = window.CONTEXTO || {});
@@ -143,7 +144,8 @@
       if (looksLikePhone(title)) {
         return { name: title, phone: normalizePhone(title) };
       }
-      return { name: title, phone: findNumberInInfoPanel(title) };
+      // Contato salvo: o número achado na ficha é só uma SUGESTÃO. Nada é liberado até o usuário confirmar.
+      return { name: title, phone: null, suggestedPhone: findNumberInInfoPanel(title) };
     },
   };
 })();

@@ -191,6 +191,7 @@
     let showHistory = false;
     let toastTimer = null;
     let promptName = null;
+    const suggestions = {}; // nome -> número sugerido (lido da ficha do contato)
 
     function summaryCard(conv) {
       summaryMeta.textContent = conv.summary.updatedAt ? `Atualizado ${fmtStamp(conv.summary.updatedAt)}` : '';
@@ -276,16 +277,35 @@
             el('div', { class: 'skeleton', style: 'margin-top:14px;height:36px' })));
       },
 
+      /** Não foi possível abrir a conversa: nada de dados antigos na tela. */
+      /** Número lido na ficha do contato: só SUGERE. Nada é liberado até o usuário confirmar. */
+      setSuggestion(name, phone) {
+        if (!phone || suggestions[name] === phone) return;
+        suggestions[name] = phone;
+        if (promptName === name && scroll.querySelector('.prompt.need')) this.showPrompt(name, undefined, true);
+      },
+
+      showLoadError() {
+        scroll.replaceChildren(
+          el('div', { class: 'hero' }, brandRow(),
+            el('div', { class: 'client' }, 'Não consegui abrir esta conversa'),
+            el('div', { class: 'phone' }, 'Suas anotações estão guardadas.')),
+          el('section', { class: 'card prompt' },
+            el('p', {}, 'Houve um erro ao carregar. Tente de novo. Se continuar, clique na versão no rodapé para copiar o diagnóstico.'),
+            el('button', { class: 'btn', type: 'button', onclick: () => h.onRetry() }, 'Tentar de novo')));
+      },
+
       showEmpty() {
         scroll.replaceChildren(heroEmpty());
       },
 
       /** Pede o número (uma única vez) quando o WhatsApp só mostra o nome. */
-      showPrompt(name, error) {
+      showPrompt(name, error, keepFocus) {
         // O que foi digitado vale só para o contato que estava na tela: troca de nome => campo limpo.
         if (promptName !== name) phoneInput.value = '';
         promptName = name;
         const submit = () => h.onConfirmPhone(name, phoneInput.value);
+        const suggested = suggestions[name];
         phoneInput.onkeydown = (e) => { if (e.key === 'Enter') submit(); };
 
         // Prévia bloqueada: deixa claro o que será liberado depois de confirmar o número.
@@ -299,11 +319,16 @@
           el('section', { class: 'card prompt need' },
             el('div', { class: 'card-h' }, el('span', { html: icon('lock'), style: 'display:contents' }), el('h3', {}, 'Confirme o número para começar')),
             el('p', {}, `Resumo e demandas ficam bloqueados até você confirmar o número de “${name}”. Digite uma vez e eu lembro daqui em diante.`),
+            suggested ? el('div', { class: 'suggest' },
+              el('div', { class: 'suggest-t' }, 'Encontrei este número na ficha do contato:'),
+              el('div', { class: 'suggest-n' }, M.formatPhone(suggested)),
+              el('button', { class: 'btn', type: 'button', onclick: () => h.onConfirmPhone(name, suggested) }, 'Confirmar este número'),
+              el('div', { class: 'suggest-o' }, 'ou digite outro abaixo')) : null,
             el('div', { class: 'row' }, phoneInput, el('button', { class: 'btn', type: 'button', onclick: submit }, 'Salvar')),
             error ? el('div', { class: 'err' }, error) : null),
           locked('layers', 'Resumo da conversa', 'Disponível depois de confirmar o número'),
           locked('bars', 'Demandas pendentes', 'Disponível depois de confirmar o número'));
-        setTimeout(() => phoneInput.focus(), 50);
+        if (!keepFocus) setTimeout(() => phoneInput.focus(), 50);
       },
 
       /**
