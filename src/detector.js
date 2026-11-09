@@ -12,6 +12,7 @@
  *
  * O que `read()` devolve:
  *    null                                  -> nenhuma conversa aberta
+ *    { loading: true }                     -> conversa abrindo (nome ainda não apareceu no cabeçalho)
  *    { name: "+55 11 91234-5678", phone: "5511912345678" }   -> contato não salvo
  *    { name: "Maria Silva",       phone: null }               -> contato salvo (número desconhecido)
  *    { name: "Maria Silva",       phone: "5511..." }          -> contato salvo e número achado no
@@ -38,8 +39,17 @@
     'span[dir="auto"]',
   ];
 
-  /** Textos de status que aparecem no cabeçalho e NÃO são o nome. */
-  const IGNORE_TEXT = /^(online|digitando|gravando|visto por último|clique aqui|typing|recording|last seen|click here)/i;
+  /**
+   * Textos do cabeçalho que NÃO são o nome do contato: status ("online"...) e
+   * etiquetas de conta ("Conta comercial"...). Se o WhatsApp mostrar outra etiqueta
+   * no lugar do nome, acrescente o texto aqui.
+   */
+  const IGNORE_TEXT = new RegExp('^(' + [
+    'online', 'digitando', 'gravando', 'visto por último', 'clique aqui',
+    'conta comercial', 'conta oficial', 'conta verificada',
+    'typing', 'recording', 'last seen', 'click here',
+    'business account', 'official business account', 'verified business',
+  ].join('|') + ')', 'i');
 
   /** Painel lateral "Dados do contato" (só é lido se VOCÊ o abriu). Heurística, veja findNumberInInfoPanel. */
   const APP_ROOT = '#app';
@@ -53,14 +63,15 @@
     return null;
   }
 
-  function readHeaderTitle() {
-    let header = null;
+  function findHeader() {
     for (const sel of HEADER_SELECTORS) {
-      header = document.querySelector(sel);
-      if (header) break;
+      const header = document.querySelector(sel);
+      if (header) return header;
     }
-    if (!header) return null;
+    return null;
+  }
 
+  function readHeaderTitle(header) {
     for (const sel of TITLE_SELECTORS) {
       for (const el of header.querySelectorAll(sel)) {
         const text = (el.getAttribute('title') || el.textContent || '').trim();
@@ -99,8 +110,10 @@
 
   NS.detector = {
     read() {
-      const title = readHeaderTitle();
-      if (!title) return null;
+      const header = findHeader();
+      if (!header) return null;                  // nenhuma conversa aberta
+      const title = readHeaderTitle(header);
+      if (!title) return { loading: true };      // cabeçalho existe, mas o nome ainda não carregou
       if (looksLikePhone(title)) {
         return { name: title, phone: normalizePhone(title) };
       }

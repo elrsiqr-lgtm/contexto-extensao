@@ -136,6 +136,10 @@ textarea:focus, input:focus { border-color: var(--c-main); box-shadow: 0 0 0 3px
 .tl-t { font-size: 10.5px; color: var(--c-mid); }
 .tl-x { margin-top: 4px; font-size: 12px; line-height: 1.45; color: var(--c-dark); white-space: pre-wrap; word-break: break-word; max-height: 4.4em; overflow: hidden; }
 
+/* ---------- carregando ---------- */
+.skeleton { border-radius: 12px; background: linear-gradient(90deg, var(--c-light) 25%, #EFE9FC 50%, var(--c-light) 75%); background-size: 200% 100%; animation: shimmer 1.2s linear infinite; }
+@keyframes shimmer { to { background-position: -200% 0; } }
+
 /* ---------- pedir número ---------- */
 .prompt p { margin: 0 0 12px; font-size: 12.5px; line-height: 1.6; }
 .prompt .row { display: flex; gap: 8px; }

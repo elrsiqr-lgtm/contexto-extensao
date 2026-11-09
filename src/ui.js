@@ -247,6 +247,20 @@
             el('button', { class: 'btn', type: 'button', onclick: () => location.reload() }, 'Recarregar página')));
       },
 
+      /** Conversa abrindo: mostra esqueleto em vez de "número não confirmado". */
+      showLoading(name) {
+        scroll.replaceChildren(
+          el('div', { class: 'hero' }, brandRow(),
+            el('div', { class: 'client' }, name || 'Carregando conversa…'),
+            el('div', { class: 'phone' }, name ? 'Identificando cliente…' : 'Aguarde um instante')),
+          el('section', { class: 'card' },
+            el('div', { class: 'skeleton', style: 'width:45%;height:12px' }),
+            el('div', { class: 'skeleton', style: 'margin-top:14px;height:64px' })),
+          el('section', { class: 'card' },
+            el('div', { class: 'skeleton', style: 'width:55%;height:12px' }),
+            el('div', { class: 'skeleton', style: 'margin-top:14px;height:36px' })));
+      },
+
       showEmpty() {
         scroll.replaceChildren(heroEmpty());
       },
