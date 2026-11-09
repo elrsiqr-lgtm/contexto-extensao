@@ -118,7 +118,8 @@
       el('span', { class: 'grow' }), toast, fileInput);
 
     const panel = el('aside', { class: 'panel', 'aria-label': 'CONTEXTO' }, scroll, foot);
-    const tab = el('button', { class: 'tab', type: 'button', title: 'Abrir/fechar CONTEXTO', 'aria-label': 'Abrir ou fechar CONTEXTO', html: icon('panel'), onclick: () => h.onToggle() });
+    const tab = el('button', { class: 'tab', type: 'button', title: 'Abrir/fechar CONTEXTO', 'aria-label': 'Abrir ou fechar CONTEXTO', onclick: () => h.onToggle() },
+      el('span', { html: icon('bolt'), style: 'display:contents' }), el('span', { class: 'label' }, 'CONTEXTO'));
     root.append(tab, panel);
 
     // ------------------------------------------------------------ pedaços
