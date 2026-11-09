@@ -11,10 +11,10 @@ Funciona **somente** em `https://web.whatsapp.com`.
 - **Painel fixo à direita**, que empurra a conversa para o lado (não cobre nada, não é pop-up).
 - **Botão para abrir e fechar**: uma aba escura na borda direita da tela. O painel lembra se estava aberto ou fechado.
 - **Acompanha a conversa aberta**: ao trocar de cliente, o painel troca sozinho. O topo mostra nome e número.
-- **Resumo da conversa**: texto livre, salvo automaticamente enquanto você digita.
-- **Demandas**: texto, prazo opcional e marcador de feita/pendente. Clique no texto para editar; prazos vencidos ficam destacados.
-- **Histórico**: cada criação ou alteração guarda data e hora, para ver a evolução.
-- **Ordem ao abrir**: resumo e demandas pendentes aparecem primeiro; concluídas e histórico ficam recolhidos.
+- **Notas importantes**: texto livre, salvo automaticamente enquanto você digita.
+- **Demandas**: texto, prazo opcional e marcador de feita/pendente. O prazo se escolhe com atalhos (**Hoje**, **Amanhã**, **Em 7 dias**) ou em **Outra data** (campo de data visível). Clique no texto para editar e no prazo para alterá-lo; prazos vencidos ficam destacados.
+- **Histórico**: cada criação ou alteração guarda data e hora, para ver a evolução. Guarda **só os últimos 7 dias** (o que passa disso é apagado automaticamente) e tem o botão **Limpar**. As notas e as demandas **não** são apagadas.
+- **Ordem ao abrir**: as notas e as demandas pendentes aparecem primeiro; concluídas e histórico ficam recolhidos.
 - **Backup**: botões **Exportar** e **Importar** no rodapé do painel (arquivo `.json`). A importação mescla com o que já existe e nunca apaga registros.
 
 ### Como o número do cliente é descoberto
@@ -61,7 +61,7 @@ icons/               Ícones da extensão
 src/
   storage.js         ÚNICO lugar que sabe onde os dados ficam
   detector.js        ÚNICO lugar que lê a página do WhatsApp
-  model.js           Regras: resumo, demandas, histórico, telefones
+  model.js           Regras: notas, demandas, histórico (7 dias), telefones
   ui.js              Painel (HTML/DOM)
   styles.js          Identidade visual (cores em variáveis --c-*)
   main.js            Liga detector + armazenamento + painel

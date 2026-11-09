@@ -78,7 +78,7 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round
 .hero .pill.ok { background: rgba(92,196,154,.18); color: #A8EBCF; }
 .pill.late { background: var(--c-main); color: #fff; }
 
-textarea, input[type=text], input[type=tel] {
+textarea, input[type=text], input[type=tel], input[type=date] {
   width: 100%; background: var(--c-bg); border: 1px solid var(--c-light); border-radius: 16px;
   padding: 10px 12px; font-size: 13px; line-height: 1.5; color: var(--c-dark); outline: none; resize: vertical;
 }
@@ -104,10 +104,11 @@ textarea:focus, input:focus { border-color: var(--c-main); box-shadow: 0 0 0 3px
 .txt { font-size: 13px; line-height: 1.45; word-break: break-word; cursor: text; }
 .done .txt { color: var(--c-mid); text-decoration: line-through; }
 .sub { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-.due { position: relative; cursor: pointer; }
+.due { cursor: pointer; }
 .due svg { width: 12px; height: 12px; }
-.due input { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; pointer-events: none; }  /* o clique é tratado pela etiqueta */
 .due:focus-visible { outline: 2px solid var(--c-main); outline-offset: 2px; }
+.due-editor { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
+input.due-edit { width: auto; padding: 4px 8px; border-radius: 12px; font-size: 12px; }
 .stamp { font-size: 10px; color: var(--c-mid); }
 .x { width: 22px; height: 22px; border-radius: 50%; color: var(--c-mid); opacity: 0; display: flex; align-items: center; justify-content: center; }
 .item:hover .x { opacity: 1; }
@@ -116,12 +117,17 @@ textarea:focus, input:focus { border-color: var(--c-main); box-shadow: 0 0 0 3px
 .edit-input { padding: 6px 10px; border-radius: 12px; }
 .empty { font-size: 12px; color: var(--c-mid); padding: 4px 2px 8px; }
 
-.add { display: flex; gap: 8px; margin-top: 12px; align-items: center; }
-.add input[type=text] { flex: 1; min-width: 0; padding: 9px 12px; }
-.add .due-wrap { position: relative; }
-.add .due-wrap .pill { padding: 8px 10px; }
-.add .go { flex: none; width: 34px; height: 34px; border-radius: 50%; background: var(--c-main); color: #fff; display: flex; align-items: center; justify-content: center; }
-.add .go svg { width: 17px; height: 17px; }
+.addbox { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { display: inline-flex; align-items: center; gap: 5px; background: var(--c-light); color: var(--c-dark); border-radius: 999px; padding: 6px 12px; font-size: 11.5px; font-weight: 600; }
+.chip svg { width: 12px; height: 12px; }
+.chip:hover { filter: brightness(.96); }
+.chip.on { background: var(--c-main); color: #fff; }
+.date-row input { padding: 8px 12px; }
+.btn.full { width: 100%; justify-content: center; padding: 11px 16px; }
+.confirm { background: var(--c-bg); border: 1px dashed var(--c-mid); border-radius: 16px; padding: 12px 14px; margin-bottom: 12px; }
+.confirm p { margin: 0 0 10px; font-size: 12px; line-height: 1.5; }
+.confirm .row { display: flex; gap: 8px; }
 
 .fold { display: flex; align-items: center; gap: 6px; width: 100%; margin-top: 12px; font-size: 12px; font-weight: 600; color: var(--c-main); }
 .fold svg { width: 14px; height: 14px; transition: transform .15s; }

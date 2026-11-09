@@ -11,6 +11,7 @@
  * Contrato (NS.storage):
  *   getConversation(phone)        -> objeto da conversa ou null
  *   saveConversation(conv)        -> grava a conversa (conv.phone é a chave)
+ *   listConversations()           -> lista com TODAS as conversas (usado na limpeza de 7 dias)
  *   getAliases()                  -> { "nome normalizado": "5511999999999" }
  *   setAlias(nameKey, phone)      -> lembra a associação nome -> número
  *   getUi() / setUi(partial)      -> preferências visuais (ex.: painel aberto)
@@ -34,6 +35,11 @@
       const key = CONV_PREFIX + phone;
       const res = await area.get(key);
       return res[key] || null;
+    },
+
+    async listConversations() {
+      const all = await area.get(null);
+      return Object.entries(all).filter(([k]) => k.startsWith(CONV_PREFIX)).map(([, v]) => v);
     },
 
     async saveConversation(conv) {
