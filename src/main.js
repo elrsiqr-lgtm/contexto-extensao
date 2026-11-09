@@ -16,6 +16,30 @@
   let logTimer = null;
   let pendingSummary = null; // texto do resumo digitado e ainda não salvo
 
+  // ------------------------------------------------------------ extensão desligada/atualizada
+  // Quando a extensão é recarregada em chrome://extensions, a aba do WhatsApp que já
+  // estava aberta continua com o script ANTIGO, sem acesso ao Chrome ("Extension context
+  // invalidated"). Em vez de travar em silêncio, avisamos e oferecemos recarregar.
+  let stale = false;
+  let observer = null;
+  let timer = null;
+  const isDead = () => !(chrome.runtime && chrome.runtime.id);
+
+  function goStale() {
+    if (stale) return;
+    stale = true;
+    clearTimeout(saveTimer); clearTimeout(logTimer);
+    if (observer) observer.disconnect();
+    clearInterval(timer);
+    ui.showStale();
+  }
+
+  function onError(e) {
+    if (isDead() || /context invalidated/i.test((e && e.message) || '')) { goStale(); return; }
+    console.error('[CONTEXTO]', e);
+    ui.flash('Algo deu errado. Tente de novo.');
+  }
+
   // ------------------------------------------------------------ persistência
   async function persist() {
     if (!conv) return;
@@ -66,7 +90,7 @@
     const text = pendingSummary;
     pendingSummary = null;
     M.setSummary(conv, text, { log: withLog });
-    await persist();
+    try { await persist(); } catch (e) { onError(e); }
   }
 
   const handlers = {
@@ -126,14 +150,27 @@
     },
   };
 
+  // Qualquer falha de armazenamento num clique vira aviso, nunca erro solto no console.
+  for (const key of Object.keys(handlers)) {
+    const fn = handlers[key];
+    handlers[key] = (...args) => {
+      try {
+        const r = fn(...args);
+        return r && r.catch ? r.catch(onError) : r;
+      } catch (e) { onError(e); }
+    };
+  }
+
   // ------------------------------------------------------------ acompanhar a conversa aberta
   function check() {
+    if (stale) return;
+    if (isDead()) { goStale(); return; }
     let ident = null;
     try { ident = detector.read(); } catch (_) { /* nunca quebrar o WhatsApp */ }
     const key = ident ? `${ident.phone || ''}|${ident.name}` : '';
     if (key === currentIdentKey) return;
     currentIdentKey = key;
-    resolve(ident);
+    resolve(ident).catch(onError);
   }
 
   let scheduled = false;
@@ -146,19 +183,22 @@
   async function init() {
     if (document.getElementById('contexto-root')) return;
     ui = NS.ui.mount(handlers);
-    try { const s = await storage.getUi(); open = s.open !== false; } catch (_) {}
+    try { const s = await storage.getUi(); open = s.open !== false; } catch (e) { onError(e); }
     ui.setOpen(open);
     ui.showEmpty();
 
-    new MutationObserver(schedule).observe(document.body, { childList: true, subtree: true, characterData: true });
-    setInterval(check, 1500); // rede de segurança
+    observer = new MutationObserver(schedule);
+    observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+    timer = setInterval(check, 1500); // rede de segurança
     check();
 
     // se outra aba do WhatsApp alterar a mesma conversa, atualiza aqui
     storage.subscribe(async (keys) => {
-      if (!conv || !keys.includes(storage.convKey(conv.phone))) return;
-      const fresh = await storage.getConversation(conv.phone);
-      if (fresh && fresh.updatedAt !== conv.updatedAt && pendingSummary === null) { conv = fresh; rerender(false); }
+      try {
+        if (!conv || !keys.includes(storage.convKey(conv.phone))) return;
+        const fresh = await storage.getConversation(conv.phone);
+        if (fresh && fresh.updatedAt !== conv.updatedAt && pendingSummary === null) { conv = fresh; rerender(false); }
+      } catch (e) { onError(e); }
     });
   }
 

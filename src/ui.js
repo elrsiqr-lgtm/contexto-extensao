@@ -236,6 +236,17 @@
         toastTimer = setTimeout(() => { toast.textContent = ''; }, 3500);
       },
 
+      /** A extensão foi atualizada/recarregada: esta página precisa ser recarregada. */
+      showStale() {
+        scroll.replaceChildren(
+          el('div', { class: 'hero' }, brandRow(),
+            el('div', { class: 'client' }, 'CONTEXTO foi atualizado'),
+            el('div', { class: 'phone' }, 'Esta página ainda está com a versão antiga.')),
+          el('section', { class: 'card prompt' },
+            el('p', {}, 'Recarregue o WhatsApp Web para continuar. Suas anotações estão guardadas e não foram perdidas.'),
+            el('button', { class: 'btn', type: 'button', onclick: () => location.reload() }, 'Recarregar página')));
+      },
+
       showEmpty() {
         scroll.replaceChildren(heroEmpty());
       },
