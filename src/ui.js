@@ -276,6 +276,17 @@
             el('div', { class: 'skeleton', style: 'margin-top:14px;height:36px' })));
       },
 
+      /** Não foi possível abrir a conversa: nada de dados antigos na tela. */
+      showLoadError() {
+        scroll.replaceChildren(
+          el('div', { class: 'hero' }, brandRow(),
+            el('div', { class: 'client' }, 'Não consegui abrir esta conversa'),
+            el('div', { class: 'phone' }, 'Suas anotações estão guardadas.')),
+          el('section', { class: 'card prompt' },
+            el('p', {}, 'Houve um erro ao carregar. Tente de novo. Se continuar, clique na versão no rodapé para copiar o diagnóstico.'),
+            el('button', { class: 'btn', type: 'button', onclick: () => h.onRetry() }, 'Tentar de novo')));
+      },
+
       showEmpty() {
         scroll.replaceChildren(heroEmpty());
       },

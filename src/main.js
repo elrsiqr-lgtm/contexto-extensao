@@ -36,10 +36,20 @@
     ui.showStale();
   }
 
+  // Guarda os últimos erros inesperados para o botão de diagnóstico (rodapé do painel).
+  const recentErrors = [];
+
   function onError(e) {
     if (isDead() || /context invalidated/i.test((e && e.message) || '')) { goStale(); return; }
-    console.error('[CONTEXTO]', e);
-    ui.flash('Algo deu errado. Tente de novo.');
+    const msg = (e && e.message) || String(e);
+    recentErrors.push({
+      quando: new Date().toISOString(),
+      mensagem: msg,
+      onde: ((e && e.stack) || '').split('\n').slice(0, 4).join('\n'),
+    });
+    if (recentErrors.length > 10) recentErrors.shift();
+    console.error('[CONTEXTO] ' + msg, e); // a mensagem vai no texto, para aparecer na tela de Erros
+    ui.flash('Algo deu errado. Clique na versão para copiar o diagnóstico.');
   }
 
   // ------------------------------------------------------------ persistência
@@ -107,6 +117,7 @@
 
   const handlers = {
     rerender: () => rerender(false),
+    onRetry() { currentIdentKey = ''; check(); },
 
     async onToggle() {
       open = !open;
@@ -147,6 +158,7 @@
         quando: new Date().toISOString(),
         cabecalho: detector.debug(),
         painel: conv ? { telefone: conv.phone } : 'sem conversa carregada',
+        erros: recentErrors.length ? recentErrors : 'nenhum erro registrado nesta aba',
       };
       const text = JSON.stringify(info, null, 2);
       try {
@@ -202,7 +214,12 @@
     const key = ident ? (ident.loading ? 'loading' : `${ident.phone || ''}|${ident.name}`) : '';
     if (key === currentIdentKey) return;
     currentIdentKey = key;
-    resolve(ident).catch(onError);
+    resolve(ident).catch((e) => {
+      // Falhou ao abrir ESTA conversa: nunca deixar na tela os dados do cliente anterior.
+      conv = null; pendingSummary = null;
+      onError(e);
+      if (!stale) ui.showLoadError();
+    });
   }
 
   // Reage na hora à primeira mudança e limita a frequência (o WhatsApp altera a página o tempo todo).
