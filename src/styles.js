@@ -145,6 +145,15 @@ textarea:focus, input:focus { border-color: var(--c-main); box-shadow: 0 0 0 3px
 .prompt .row { display: flex; gap: 8px; }
 .err { margin-top: 8px; font-size: 11.5px; color: var(--c-main); font-weight: 600; }
 
+/* ---------- bloqueado até confirmar o número ---------- */
+.prompt.need { border: 1.5px solid var(--c-main); box-shadow: 0 6px 24px rgba(123,47,224,.16); }
+.prompt.need .card-h svg { color: var(--c-main); }
+.card.locked { opacity: .55; background: var(--c-bg); box-shadow: none; border-style: dashed; border-color: var(--c-light); pointer-events: none; user-select: none; }
+.card.locked .card-h { margin-bottom: 8px; }
+.card.locked .card-h svg { color: var(--c-mid); }
+.lock-ic svg { width: 15px !important; height: 15px !important; color: var(--c-mid); }
+.ghost-line { font-size: 11.5px; color: var(--c-mid); }
+
 /* ---------- rodapé (backup) ---------- */
 .foot { flex: none; display: flex; align-items: center; gap: 14px; padding: 10px 18px 14px; border-top: 1px solid #EFE9FC; background: var(--c-bg); }
 .foot .link { display: inline-flex; align-items: center; gap: 5px; font-weight: 600; }

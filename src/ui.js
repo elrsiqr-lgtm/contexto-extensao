@@ -23,6 +23,7 @@
     clock: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
     panel: '<rect x="3" y="4.5" width="18" height="15" rx="4"/><path d="M15 4.5v15"/>',
     chevron: '<path d="m6 9 6 6 6-6"/>',
+    lock: '<rect x="5" y="11" width="14" height="9" rx="3"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
     note: '<rect x="4" y="3.5" width="16" height="17" rx="4"/><path d="M8 9h8M8 13h5"/>',
   };
   const icon = (n) => `<svg viewBox="0 0 24 24" aria-hidden="true">${P[n]}</svg>`;
@@ -137,7 +138,7 @@
       return el('div', { class: 'hero' }, brandRow(),
         el('div', { class: 'client' }, unsaved ? M.formatPhone(phone) || name : name || 'Cliente'),
         el('div', { class: 'phone' }, unsaved ? 'Contato não salvo' : phone ? M.formatPhone(phone) : 'Número não confirmado'),
-        phone ? el('span', { class: 'pill ok' }, 'ativo') : null);
+        phone ? el('span', { class: 'pill ok' }, 'ativo') : el('span', { class: 'pill' }, 'Aguardando número'));
     }
 
     function demandItem(d) {
@@ -269,13 +270,22 @@
       showPrompt(name, error) {
         const submit = () => h.onConfirmPhone(name, phoneInput.value);
         phoneInput.onkeydown = (e) => { if (e.key === 'Enter') submit(); };
+
+        // Prévia bloqueada: deixa claro o que será liberado depois de confirmar o número.
+        const locked = (iconName, title, hint) => el('section', { class: 'card locked', 'aria-disabled': 'true' },
+          el('div', { class: 'card-h' }, el('span', { html: icon(iconName), style: 'display:contents' }), el('h3', {}, title),
+            el('span', { html: icon('lock'), class: 'lock-ic', style: 'display:flex' })),
+          el('div', { class: 'ghost-line' }, hint));
+
         scroll.replaceChildren(
           heroClient(name, null),
-          el('section', { class: 'card prompt' },
-            el('div', { class: 'card-h' }, el('span', { html: icon('search'), style: 'display:contents' }), el('h3', {}, 'Confirme o número')),
-            el('p', {}, `Não consegui descobrir o número de “${name}”. Digite uma vez e eu lembro daqui em diante.`),
+          el('section', { class: 'card prompt need' },
+            el('div', { class: 'card-h' }, el('span', { html: icon('lock'), style: 'display:contents' }), el('h3', {}, 'Confirme o número para começar')),
+            el('p', {}, `Resumo e demandas ficam bloqueados até você confirmar o número de “${name}”. Digite uma vez e eu lembro daqui em diante.`),
             el('div', { class: 'row' }, phoneInput, el('button', { class: 'btn', type: 'button', onclick: submit }, 'Salvar')),
-            error ? el('div', { class: 'err' }, error) : null));
+            error ? el('div', { class: 'err' }, error) : null),
+          locked('layers', 'Resumo da conversa', 'Disponível depois de confirmar o número'),
+          locked('bars', 'Demandas pendentes', 'Disponível depois de confirmar o número'));
         setTimeout(() => phoneInput.focus(), 50);
       },
 
