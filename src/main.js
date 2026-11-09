@@ -140,6 +140,25 @@
       check();
     },
 
+    /** Copia para a área de transferência o que o detector enxerga no cabeçalho (sem mensagens). */
+    async onDiagnostic() {
+      const info = {
+        versao: chrome.runtime.getManifest().version,
+        quando: new Date().toISOString(),
+        cabecalho: detector.debug(),
+        painel: conv ? { telefone: conv.phone } : 'sem conversa carregada',
+      };
+      const text = JSON.stringify(info, null, 2);
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch (_) {
+        const ta = document.createElement('textarea');
+        ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.append(ta); ta.select(); document.execCommand('copy'); ta.remove();
+      }
+      ui.flash('Diagnóstico copiado');
+    },
+
     async onExport() {
       try {
         const data = await storage.exportAll();
