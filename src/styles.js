@@ -49,8 +49,18 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round
   display: none; flex-direction: column; z-index: 1;
 }
 :host(.open) .panel { display: flex; }
-.scroll { flex: 1; overflow-y: auto; padding: 14px 14px 8px; display: flex; flex-direction: column; gap: 12px; }
+.scroll {
+  flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px;
+  /* A barra de rolagem (6 px) fica SEMPRE reservada à direita; por isso o recuo da direita é 6 px menor,
+     e as margens ficam iguais (14 px) dos dois lados, com ou sem barra. */
+  scrollbar-gutter: stable;
+  padding: 14px 8px 16px 14px;
+  /* O conteúdo some suavemente nas bordas de cima e de baixo (em vez de ser cortado seco). */
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 16px), transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 16px), transparent 100%);
+}
 .scroll::-webkit-scrollbar { width: 6px; }
+.scroll::-webkit-scrollbar-track { background: transparent; }
 .scroll::-webkit-scrollbar-thumb { background: var(--c-light); border-radius: 6px; }
 
 /* ---------- topo ---------- */
