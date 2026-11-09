@@ -146,6 +146,12 @@ textarea:focus, input:focus { border-color: var(--c-main); box-shadow: 0 0 0 3px
 .prompt .row { display: flex; gap: 8px; }
 .err { margin-top: 8px; font-size: 11.5px; color: var(--c-main); font-weight: 600; }
 
+/* ---------- sugestão de número (ficha do contato) ---------- */
+.suggest { background: var(--c-bg); border: 1px dashed var(--c-mid); border-radius: 16px; padding: 12px 14px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+.suggest-t { font-size: 11.5px; color: var(--c-mid); }
+.suggest-n { font-size: 16px; font-weight: 600; }
+.suggest-o { font-size: 11px; color: var(--c-mid); }
+
 /* ---------- bloqueado até confirmar o número ---------- */
 .prompt.need { border: 1.5px solid var(--c-main); box-shadow: 0 6px 24px rgba(123,47,224,.16); }
 .prompt.need .card-h svg { color: var(--c-main); }

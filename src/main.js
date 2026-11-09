@@ -211,6 +211,7 @@
     if (isDead()) { goStale(); return; }
     let ident = null;
     try { ident = detector.read(); } catch (_) { /* nunca quebrar o WhatsApp */ }
+    if (ident && !ident.loading && ident.suggestedPhone) ui.setSuggestion(ident.name, ident.suggestedPhone);
     const key = ident ? (ident.loading ? 'loading' : `${ident.phone || ''}|${ident.name}`) : '';
     if (key === currentIdentKey) return;
     currentIdentKey = key;
