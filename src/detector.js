@@ -109,7 +109,32 @@
     return null;
   }
 
+  /**
+   * DIAGNÓSTICO: lista os textos do CABEÇALHO da conversa (nome, status, dicas) e qual deles
+   * foi escolhido como nome. Não toca em mensagens. Serve para ajustar os seletores acima
+   * quando o WhatsApp mudar.
+   */
+  function debugHeader() {
+    const header = findHeader();
+    if (!header) return { header: false };
+    const items = [];
+    for (const el of header.querySelectorAll('span, div')) {
+      if (el.children.length) continue;               // só elementos que têm o texto em si
+      const text = (el.textContent || '').trim();
+      const title = el.getAttribute('title') || '';
+      if (!text && !title) continue;
+      items.push({
+        tag: el.tagName.toLowerCase(),
+        dir: el.getAttribute('dir') || '',
+        title, text,
+        ignorado: IGNORE_TEXT.test(title || text),
+      });
+    }
+    return { header: true, escolhido: readHeaderTitle(header), itens: items };
+  }
+
   NS.detector = {
+    debug: debugHeader,
     read() {
       const header = findHeader();
       if (!header) return null;                  // nenhuma conversa aberta

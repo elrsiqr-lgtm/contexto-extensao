@@ -116,7 +116,10 @@
     const foot = el('div', { class: 'foot' },
       btn('link', 'download', 'Exportar', () => h.onExport(), 'Exportar backup de todos os registros'),
       btn('link', 'upload', 'Importar', () => fileInput.click(), 'Importar backup'),
-      el('span', { class: 'grow' }), toast, fileInput);
+      el('span', { class: 'grow' }), toast,
+      el('button', { class: 'ver', type: 'button', title: 'Copiar informações para suporte (só textos do cabeçalho da conversa)', onclick: () => h.onDiagnostic() },
+        `v${chrome.runtime.getManifest().version}`),
+      fileInput);
 
     const panel = el('aside', { class: 'panel', 'aria-label': 'CONTEXTO' }, scroll, foot);
     const tab = el('button', { class: 'tab', type: 'button', title: 'Abrir/fechar CONTEXTO', 'aria-label': 'Abrir ou fechar CONTEXTO', onclick: () => h.onToggle() },
