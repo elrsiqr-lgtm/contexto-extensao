@@ -24,17 +24,23 @@
 button { cursor: pointer; border: 0; background: none; color: inherit; font-size: inherit; padding: 0; }
 svg { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; display: block; }
 
-/* ---------- aba para abrir/fechar (discreta) ---------- */
+/* ---------- aba para abrir/fechar ---------- */
+/* O host fica acima de TUDO no WhatsApp, para o botão nunca ser coberto. */
+:host { position: fixed; top: 0; right: 0; width: 0; height: 0; z-index: 2147483647; }
 .tab {
   position: fixed; top: 50%; right: 0; transform: translateY(-50%);
-  width: 26px; height: 56px; border-radius: 14px 0 0 14px;
-  background: var(--c-dark); color: #fff; opacity: .55;
-  display: flex; align-items: center; justify-content: center;
-  transition: opacity .15s, right .2s; z-index: 2;
+  min-width: 30px; padding: 12px 0; border-radius: 14px 0 0 14px;
+  background: var(--c-dark); color: #fff; opacity: .92;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  box-shadow: 0 4px 18px rgba(27,21,53,.25);
+  transition: opacity .15s, right .2s;
 }
-.tab:hover { opacity: 1; }
+.tab:hover { opacity: 1; background: var(--c-main); }
 .tab svg { width: 16px; height: 16px; }
-:host(.open) .tab { right: var(--w); opacity: .8; }
+.tab .label { writing-mode: vertical-rl; font-size: 10.5px; font-weight: 700; letter-spacing: .18em; }
+:host(.open) .tab { right: var(--w); opacity: .6; padding: 10px 0; }
+:host(.open) .tab .label { display: none; }
+:host(.open) .tab:hover { opacity: 1; }
 
 /* ---------- painel ---------- */
 .panel {
