@@ -45,9 +45,10 @@
    * no lugar do nome, acrescente o texto aqui.
    */
   const IGNORE_TEXT = new RegExp('^(' + [
-    'online', 'digitando', 'gravando', 'visto por último', 'clique aqui',
+    'online', 'digitando', 'gravando', 'visto por último',
+    'clique', 'toque',                          // dica: "clique para mostrar os dados do contato"
     'conta comercial', 'conta oficial', 'conta verificada',
-    'typing', 'recording', 'last seen', 'click here',
+    'typing', 'recording', 'last seen', 'click', 'tap',
     'business account', 'official business account', 'verified business',
   ].join('|') + ')', 'i');
 
@@ -72,11 +73,11 @@
   }
 
   function readHeaderTitle(header) {
-    for (const sel of TITLE_SELECTORS) {
-      for (const el of header.querySelectorAll(sel)) {
-        const text = (el.getAttribute('title') || el.textContent || '').trim();
-        if (text && !IGNORE_TEXT.test(text)) return text;
-      }
+    // Em ORDEM DE APARECIMENTO na tela: o nome vem antes das linhas de apoio
+    // (status, dica "clique para mostrar os dados do contato", lista de participantes).
+    for (const el of header.querySelectorAll(TITLE_SELECTORS.join(','))) {
+      const text = (el.getAttribute('title') || el.textContent || '').trim();
+      if (text && !IGNORE_TEXT.test(text)) return text;
     }
     return null;
   }

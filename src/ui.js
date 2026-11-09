@@ -177,6 +177,7 @@
     let showDone = false;
     let showHistory = false;
     let toastTimer = null;
+    let promptName = null;
 
     function summaryCard(conv) {
       summaryMeta.textContent = conv.summary.updatedAt ? `Atualizado ${fmtStamp(conv.summary.updatedAt)}` : '';
@@ -268,6 +269,9 @@
 
       /** Pede o número (uma única vez) quando o WhatsApp só mostra o nome. */
       showPrompt(name, error) {
+        // O que foi digitado vale só para o contato que estava na tela: troca de nome => campo limpo.
+        if (promptName !== name) phoneInput.value = '';
+        promptName = name;
         const submit = () => h.onConfirmPhone(name, phoneInput.value);
         phoneInput.onkeydown = (e) => { if (e.key === 'Enter') submit(); };
 
