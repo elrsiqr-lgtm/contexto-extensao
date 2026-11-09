@@ -187,6 +187,11 @@ input.due-edit { width: auto; padding: 4px 8px; border-radius: 12px; font-size: 
 .prompt .row { display: flex; gap: 8px; }
 .err { margin-top: 8px; font-size: 11.5px; color: var(--c-main); font-weight: 600; }
 
+/* ---------- grupo / trocar identificação ---------- */
+.or { text-align: center; font-size: 11px; color: var(--c-mid); margin: 14px 0 10px; }
+.hero-link { display: block; margin-top: 12px; font-size: 11px; color: var(--c-light); text-decoration: underline; opacity: .85; }
+.hero-link:hover { opacity: 1; }
+
 /* ---------- sugestão de número (ficha do contato) ---------- */
 .suggest { background: var(--c-bg); border: 1px dashed var(--c-mid); border-radius: 16px; padding: 12px 14px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
 .suggest-t { font-size: 11.5px; color: var(--c-mid); }

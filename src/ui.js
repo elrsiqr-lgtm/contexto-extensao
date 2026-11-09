@@ -207,12 +207,14 @@
         el('div', { class: 'hero-empty' }, 'Abra uma conversa no WhatsApp para ver e registrar o que foi combinado com o cliente.'));
     }
 
-    function heroClient(name, phone) {
+    function heroClient(name, phone, opts = {}) {
       const unsaved = M.looksLikePhone(name); // contato não salvo: o "nome" já é o número
+      const group = M.isGroup(phone);
       return el('div', { class: 'hero' }, brandRow(),
         el('div', { class: 'client' }, unsaved ? M.formatPhone(phone) || name : name || 'Cliente'),
-        el('div', { class: 'phone' }, unsaved ? 'Contato não salvo' : phone ? M.formatPhone(phone) : 'Número não confirmado'),
-        phone ? el('span', { class: 'pill ok' }, 'ativo') : el('span', { class: 'pill' }, 'Aguardando número'));
+        el('div', { class: 'phone' }, group ? 'Grupo' : unsaved ? 'Contato não salvo' : phone ? M.formatPhone(phone) : 'Número não confirmado'),
+        phone ? el('span', { class: 'pill ok' }, 'ativo') : el('span', { class: 'pill' }, 'Aguardando número'),
+        opts.editable ? el('button', { class: 'hero-link', type: 'button', onclick: () => h.onResetIdentity(name) }, 'Trocar número ou grupo') : null);
     }
 
     function demandItem(d) {
@@ -284,6 +286,7 @@
       if (done.length) {
         card.append(el('button', { class: `fold${showDone ? ' open' : ''}`, type: 'button', onclick: () => { showDone = !showDone; h.rerender(); } },
           `Concluídas (${done.length})`, el('span', { html: icon('chevron'), style: 'display:contents' })));
+        card.append(el('div', { class: 'meta', style: 'margin-top:6px' }, `Concluídas ficam ${M.DONE_DAYS} dias e depois são apagadas.`));
         if (showDone) card.append(el('ul', { class: 'list' }, done.map(demandItem)));
       }
       return card;
@@ -315,7 +318,6 @@
               e.text ? el('div', { class: 'tl-x' }, e.text) : null))));
         }
       }
-      card.append(el('div', { class: 'meta', style: `margin-top:${items.length ? 12 : 4}px` }, `O histórico guarda só os últimos ${M.HISTORY_DAYS} dias.`));
       return card;
     }
 
@@ -399,14 +401,16 @@
           heroClient(name, null),
           el('section', { class: 'card prompt need' },
             el('div', { class: 'card-h' }, el('span', { html: icon('lock'), style: 'display:contents' }), el('h3', {}, 'Confirme o número para começar')),
-            el('p', {}, `Notas e demandas ficam bloqueadas até você confirmar o número de “${name}”. Digite uma vez e eu lembro daqui em diante.`),
+            el('p', {}, `Notas e demandas ficam bloqueadas até você confirmar o número de “${name}” ou salvar como grupo. Faz uma vez só: eu lembro daqui em diante.`),
             suggested ? el('div', { class: 'suggest' },
               el('div', { class: 'suggest-t' }, 'Encontrei este número na ficha do contato:'),
               el('div', { class: 'suggest-n' }, M.formatPhone(suggested)),
               el('button', { class: 'btn', type: 'button', onclick: () => h.onConfirmPhone(name, suggested) }, 'Confirmar este número'),
               el('div', { class: 'suggest-o' }, 'ou digite outro abaixo')) : null,
             el('div', { class: 'row' }, phoneInput, el('button', { class: 'btn', type: 'button', onclick: submit }, 'Salvar')),
-            error ? el('div', { class: 'err' }, error) : null),
+            error ? el('div', { class: 'err' }, error) : null,
+            el('div', { class: 'or' }, 'ou, se for um grupo (sem número)'),
+            el('button', { class: 'btn ghost full', type: 'button', onclick: () => h.onConfirmGroup(name) }, 'Salvar como grupo')),
           locked('layers', 'Notas importantes', 'Disponível depois de confirmar o número'),
           locked('bars', 'Demandas pendentes', 'Disponível depois de confirmar o número'));
         if (!keepFocus) setTimeout(() => phoneInput.focus(), 50);
@@ -420,7 +424,7 @@
         if (resetSummary) confirmClear = false;
         if (resetSummary || summaryEl.getRootNode().activeElement !== summaryEl) summaryEl.value = conv.summary.text;
         // ordem: topo -> notas -> demandas pendentes -> histórico
-        scroll.replaceChildren(heroClient(display.name, conv.phone), summaryCard(conv), demandsCard(conv), historyCard(conv));
+        scroll.replaceChildren(heroClient(display.name, conv.phone, { editable: !M.looksLikePhone(display.name) }), summaryCard(conv), demandsCard(conv), historyCard(conv));
       },
 
       resetAddForm() { demandInput.value = ''; otherOpen = false; setDue(null); showHint(''); },
@@ -429,10 +433,21 @@
     // métodos que redesenham: se o mouse está pressionado, espera soltar (o último pedido vale)
     for (const name of ['showEmpty', 'showLoading', 'showPrompt', 'showConversation', 'showStale', 'showLoadError']) {
       const fn = api[name];
-      api[name] = (...args) => {
-        if (pointerDown) { queuedPaint = () => fn.apply(api, args); return; }
-        queuedPaint = null;
+      const paint = (args) => {
+        // Redesenhar tira os campos da tela e os recoloca SEM foco. Guardamos o campo ativo (e o cursor)
+        // e devolvemos o foco no fim, para o que a pessoa está digitando não cair no vazio.
+        const active = root.activeElement;
+        const sel = active && typeof active.selectionStart === 'number' ? [active.selectionStart, active.selectionEnd] : null;
         fn.apply(api, args);
+        if (active && active.isConnected && root.activeElement !== active) {
+          active.focus({ preventScroll: true });
+          if (sel) { try { active.setSelectionRange(sel[0], sel[1]); } catch (_) { /* campo sem cursor (ex.: data) */ } }
+        }
+      };
+      api[name] = (...args) => {
+        if (pointerDown) { queuedPaint = () => paint(args); return; }
+        queuedPaint = null;
+        paint(args);
       };
     }
     return api;

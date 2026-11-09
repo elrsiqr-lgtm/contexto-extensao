@@ -107,7 +107,7 @@
       stored.name = ident.name; // contato salvo ganhou/mudou de nome
       await storage.saveConversation(stored);
     }
-    if (M.pruneHistory(stored) > 0) await storage.saveConversation(stored); // histórico: só 7 dias
+    if (M.pruneDone(stored) > 0) await storage.saveConversation(stored); // concluídas: só 7 dias
     conv = stored;
     display = { name: M.looksLikePhone(ident.name) && conv.name ? conv.name : ident.name };
     ui.resetAddForm();
@@ -194,6 +194,24 @@
       ui.flash('Diagnóstico copiado');
     },
 
+    /** Grupo não tem número: salva a associação nome -> grupo e abre as notas. */
+    async onConfirmGroup(name) {
+      await storage.setAlias(M.nameKey(name), M.groupKey(name));
+      aliasCache = null;
+      currentIdentKey = '';
+      track('salvar como grupo', 'ok');
+      check();
+    },
+
+    /** Desfaz a associação (nome -> número ou grupo) para escolher de novo. Os dados já guardados não são apagados. */
+    async onResetIdentity(name) {
+      await storage.removeAlias(M.nameKey(name));
+      aliasCache = null;
+      currentIdentKey = '';
+      track('trocar número ou grupo', 'ok');
+      check();
+    },
+
     async onExport() {
       try {
         const data = await storage.exportAll();
@@ -263,11 +281,11 @@
     ui.setOpen(open);
     ui.showEmpty();
 
-    // Limpeza do histórico com mais de 7 dias em todas as conversas (uma vez por abertura do WhatsApp Web)
+    // Apaga as demandas concluídas há mais de 7 dias em todas as conversas (uma vez por abertura do WhatsApp Web)
     (async () => {
       try {
         for (const c of await storage.listConversations()) {
-          if (M.pruneHistory(c) > 0) await storage.saveConversation(c);
+          if (M.pruneDone(c) > 0) await storage.saveConversation(c);
         }
       } catch (e) { onError(e); }
     })();
@@ -283,7 +301,9 @@
         if (keys.includes('aliases')) aliasCache = null; // outra aba/importação mudou os nomes
         if (!conv || !keys.includes(storage.convKey(conv.phone))) return;
         const fresh = await storage.getConversation(conv.phone);
-        if (fresh && fresh.updatedAt !== conv.updatedAt && pendingSummary === null) { conv = fresh; rerender(false); }
+        // Só adota o que veio do armazenamento se for MAIS NOVO que o da tela. Sem isso, o "eco" do nosso
+        // próprio salvamento anterior (mais antigo) trocava a conversa em memória e fazia a última alteração sumir.
+        if (fresh && fresh.updatedAt > conv.updatedAt && pendingSummary === null) { conv = fresh; rerender(false); }
       } catch (e) { onError(e); }
     });
   }

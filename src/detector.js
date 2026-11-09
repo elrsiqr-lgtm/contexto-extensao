@@ -102,6 +102,8 @@
       if (r.left > half * 0.9) { panel = el.closest('section, aside, div[role="region"]') || null; break; }
     }
     if (!panel) return null;
+    // Ficha de GRUPO lista números de participantes: não serve como número do grupo.
+    if (/\b\d+\s+(participantes|participants|membros)\b|dados do grupo|group info/i.test(panel.innerText || '')) return null;
     for (const el of panel.querySelectorAll('span, div')) {
       if (el.children.length) continue;
       const t = (el.textContent || '').trim();
