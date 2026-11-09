@@ -14,6 +14,7 @@
   let resolveToken = 0;     // descarta respostas antigas ao trocar rápido de conversa
   let saveTimer = null;
   let logTimer = null;
+  let aliasCache = null;    // nome -> número, guardado em memória para abrir mais rápido
   let pendingSummary = null; // texto do resumo digitado e ainda não salvo
 
   // ------------------------------------------------------------ extensão desligada/atualizada
@@ -62,8 +63,8 @@
 
     let phone = ident.phone;
     if (!phone) {
-      const aliases = await storage.getAliases();
-      phone = aliases[M.nameKey(ident.name)] || null;
+      if (!aliasCache) aliasCache = await storage.getAliases();
+      phone = aliasCache[M.nameKey(ident.name)] || null;
     }
     if (token !== resolveToken) return;
 
@@ -123,6 +124,7 @@
       const phone = M.normalizePhone(raw);
       if (!phone) { ui.showPrompt(name, 'Número inválido. Use DDD + número, ex.: 11 91234-5678.'); return; }
       await storage.setAlias(M.nameKey(name), phone);
+      aliasCache = null;
       currentIdentKey = ''; // força reler
       check();
     },
@@ -173,11 +175,14 @@
     resolve(ident).catch(onError);
   }
 
-  let scheduled = false;
+  // Reage na hora à primeira mudança e limita a frequência (o WhatsApp altera a página o tempo todo).
+  const MIN_GAP = 80; // ms entre verificações
+  let lastRun = 0;
+  let trailing = null;
   function schedule() {
-    if (scheduled) return;
-    scheduled = true;
-    setTimeout(() => { scheduled = false; check(); }, 250);
+    const wait = MIN_GAP - (Date.now() - lastRun);
+    if (wait <= 0) { lastRun = Date.now(); check(); return; }
+    if (!trailing) trailing = setTimeout(() => { trailing = null; lastRun = Date.now(); check(); }, wait);
   }
 
   async function init() {
@@ -195,6 +200,7 @@
     // se outra aba do WhatsApp alterar a mesma conversa, atualiza aqui
     storage.subscribe(async (keys) => {
       try {
+        if (keys.includes('aliases')) aliasCache = null; // outra aba/importação mudou os nomes
         if (!conv || !keys.includes(storage.convKey(conv.phone))) return;
         const fresh = await storage.getConversation(conv.phone);
         if (fresh && fresh.updatedAt !== conv.updatedAt && pendingSummary === null) { conv = fresh; rerender(false); }
