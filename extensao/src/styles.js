@@ -87,7 +87,7 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round
   /* A barra de rolagem (6 px) fica SEMPRE reservada à direita; por isso o recuo da direita é 6 px menor,
      e as margens ficam iguais (14 px) dos dois lados, com ou sem barra. */
   scrollbar-gutter: stable;
-  padding: 10px 8px 16px 14px;
+  padding: 18px 8px 16px 14px;
   /* O conteúdo some suavemente nas bordas de cima e de baixo (em vez de ser cortado seco). */
   -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 10px, #000 calc(100% - 16px), transparent 100%);
   mask-image: linear-gradient(to bottom, transparent 0, #000 10px, #000 calc(100% - 16px), transparent 100%);
@@ -106,7 +106,7 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round
     0 6px 12px rgba(27,21,53,.28),
     0 22px 38px -12px rgba(27,21,53,.60);
 }
-.brandbar { flex: none; display: flex; align-items: flex-start; padding: 16px 14px 0 12px; }
+.brandbar { flex: none; display: flex; align-items: flex-start; padding: 16px 14px 12px 12px; border-bottom: 1px solid #EFE9FC; }
 .brandbar .grow { flex: 1; }
 .brand-mark { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; letter-spacing: .18em; color: var(--c-dark); }
 .brand-mark svg { width: 16px; height: 16px; color: var(--c-main); }
