@@ -1,3 +1,8 @@
 .DS_Store
 node_modules/
 *.zip
+
+# segredos: nunca versionar
+.env
+.env.*
+*.pem

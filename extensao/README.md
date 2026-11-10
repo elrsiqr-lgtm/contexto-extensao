@@ -1,6 +1,8 @@
 <p align="center"><img src="assets/logo.png" alt="CONTEXTO" width="220"></p>
 
-# CONTEXTO
+# CONTEXTO — extensão do Chrome
+
+> Este README é da extensão. Visão geral do projeto (extensão, site e banco): [README da raiz](../README.md).
 
 > Moderna. Clara. Versátil.
 
@@ -42,10 +44,10 @@ Números com 10 ou 11 dígitos são tratados como brasileiros (prefixo 55 acresc
 
 ## Instalação (modo desenvolvedor)
 
-1. Baixe este repositório (**Code → Download ZIP**) e extraia. Você precisa da pasta que contém o arquivo `manifest.json`.
+1. Baixe este repositório (**Code → Download ZIP**) e extraia. Você precisa da pasta **`extensao`**, a que contém o arquivo `manifest.json`.
 2. No Chrome, abra `chrome://extensions`.
 3. Ative **Modo do desenvolvedor** (canto superior direito).
-4. Clique em **Carregar sem compactação** e selecione a pasta com o `manifest.json`.
+4. Clique em **Carregar sem compactação** e selecione a pasta **`extensao`** (a que tem o `manifest.json`).
 5. Abra `https://web.whatsapp.com` (recarregue com F5 se já estava aberto).
 
 Não apague nem mova a pasta depois de instalar: o Chrome carrega a extensão direto dela.
