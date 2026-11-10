@@ -17,7 +17,6 @@ Funciona **somente** em `https://web.whatsapp.com`.
 - **Notas importantes**: texto livre, salvo automaticamente enquanto você digita. O botão **Salvar nota** guarda uma cópia datada na aba **Notas salvas** (as Notas importantes continuam como estão). Lá dá para editar (clique no texto), copiar e excluir cada nota.
 - **Demandas**: texto, prazo opcional e marcador de feita/pendente. O prazo se escolhe com atalhos (**Hoje**, **Amanhã**, **Em 7 dias**) ou em **Outra data** (campo de data visível). Clique no texto para editar e no prazo para alterá-lo; prazos vencidos ficam destacados.
 - **Demandas concluídas** ficam **7 dias** e depois são apagadas automaticamente. As pendentes, as notas e o histórico **não** expiram.
-- **Marca do autor** (rodapé do painel): uma caixinha fechada. Ao clicar, a figura pula para fora da caixa; ela fecha sozinha depois de alguns segundos (ou ao clicar de novo). Respeita a opção "reduzir movimento" do sistema.
 - **Grupos**: grupo não tem número. Na tela de confirmação há a opção **Salvar como grupo**; o grupo passa a ser identificado pelo nome. O link **Trocar número ou grupo** (no topo do painel) desfaz a escolha.
 - **Histórico** (aba própria): cada criação ou alteração guarda data e hora, para ver a evolução. Tem o botão **Limpar** (com confirmação), que apaga só o histórico.
 - **Ordem ao abrir**: as notas e as demandas pendentes aparecem primeiro; concluídas e histórico ficam recolhidos.
@@ -63,7 +62,7 @@ Seus dados não são perdidos ao atualizar. Mesmo assim, é boa prática exporta
 ```
 manifest.json        Configuração da extensão (Manifest V3)
 fonts/               Fonte Sora (embutida)
-assets/              logo.png = logo do CONTEXTO (topo do painel e este README); c.png = o desenho (camadas) do logo, usado no puxador (aba lateral); autor.png = marca do autor (rodapé do painel)
+assets/              logo.png = logo do CONTEXTO (topo do painel e este README); c.png = o desenho (camadas) do logo, usado no puxador (aba lateral)
 icons/               Ícones da extensão (o "C" em 16, 48 e 128 px)
 src/
   storage.js         ÚNICO lugar que sabe onde os dados ficam
@@ -114,7 +113,3 @@ Fonte: **Sora**. Ícones de traço fino, cartões arredondados e etiquetas em p�
   }
 }
 ```
-
----
-
-<p align="center"><img src="assets/autor.png" alt="Marca do autor" width="72"><br><sub>Marca do autor</sub></p>

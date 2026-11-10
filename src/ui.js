@@ -190,30 +190,12 @@
     fileInput.addEventListener('change', () => { if (fileInput.files[0]) h.onImport(fileInput.files[0]); fileInput.value = ''; });
 
     const logoUrl = chrome.runtime.getURL('assets/logo.png');
-    // Marca do autor: uma caixinha FECHADA. Ao clicar, a figura "sai" da caixa (pulinho e faíscas) e depois de
-    // alguns segundos a caixa se fecha sozinha. A caixa fechada e a aberta têm o MESMO tamanho e a mesma base
-    // (mesma grade 160x160): só a tampa e a figura mudam. Clicar de novo fecha na hora.
-    const authorOpenImg = el('img', { class: 'mark-open', src: chrome.runtime.getURL('assets/autor.png'), alt: '', draggable: 'false', onerror: (e) => e.target.remove() });
-    const authorMark = el('button', { class: 'mark', type: 'button', title: 'Clique na caixa', 'aria-label': 'Marca do autor: clique para abrir a caixa', 'aria-pressed': 'false' },
-      el('span', { class: 'mark-closed', html: `<svg viewBox="0 0 160 160" aria-hidden="true"><defs><clipPath id="ctx-lid"><polygon points="80,50 130,76 80,102 31,76"/></clipPath></defs><g stroke="#0E1C3D" stroke-width="2.7" stroke-linejoin="round" stroke-linecap="round"><polygon points="31,76 80,102 80,152 31,126" fill="#F9CCAF"/><polygon points="80,102 130,76 130,126 80,152" fill="#AD90DA"/><polygon points="80,50 130,76 80,102 31,76" fill="#FBDDC6"/></g><g clip-path="url(#ctx-lid)"><path d="M50 56 L112 86" stroke="#CDB8F5" stroke-width="13" fill="none"/></g><path d="M55.5 63 L104.5 89" stroke="#0E1C3D" stroke-width="1.9" fill="none" stroke-linecap="round"/><polygon points="80,50 130,76 80,102 31,76" fill="none" stroke="#0E1C3D" stroke-width="2.7" stroke-linejoin="round"/><polygon points="134,30 138,40 148,44 138,48 134,58 130,48 120,44 130,40" fill="#B79BF0" stroke="#0E1C3D" stroke-width="2.6" stroke-linejoin="round"/></svg>` }),
-      authorOpenImg,
-      el('span', { class: 'spark s1' }), el('span', { class: 'spark s2' }), el('span', { class: 'spark s3' }));
-    let markTimer = null;
-    const setMarkOpen = (open) => {
-      clearTimeout(markTimer);
-      authorMark.classList.toggle('open', open);
-      authorMark.setAttribute('aria-pressed', String(open));
-      if (open) markTimer = setTimeout(() => setMarkOpen(false), 3600);
-    };
-    authorMark.addEventListener('click', () => setMarkOpen(!authorMark.classList.contains('open')));
 
 
     const foot = el('div', { class: 'foot' },
       btn('link', 'download', 'Exportar', () => h.onExport(), 'Exportar backup de todos os registros'),
       btn('link', 'upload', 'Importar', () => fileInput.click(), 'Importar backup'),
       el('span', { class: 'grow' }), toast,
-      // Marca do autor (discreta). Se a imagem não carregar, ela some sem deixar espaço.
-      authorMark,
       el('button', { class: 'ver', type: 'button', title: 'Copiar informações para suporte (só textos do cabeçalho da conversa)', onclick: () => h.onDiagnostic() },
         `v${chrome.runtime.getManifest().version}`),
       fileInput);
