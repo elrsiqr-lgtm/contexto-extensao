@@ -85,7 +85,7 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round
 .brandbar .grow { flex: 1; }
 .brand-mark { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; letter-spacing: .18em; color: var(--c-dark); }
 .brand-mark svg { width: 16px; height: 16px; color: var(--c-main); }
-.brand-logo { height: 64px; width: auto; max-width: none; user-select: none; -webkit-user-drag: none; }
+.brand-logo { height: 46px; width: auto; max-width: none; user-select: none; -webkit-user-drag: none; }
 .icon-btn { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--c-light); }
 .icon-btn:hover { background: rgba(255,255,255,.12); }
 .brandbar .icon-btn { color: var(--c-mid); margin-top: 8px; }
