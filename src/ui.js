@@ -82,10 +82,14 @@
 
     // 2) CSS que empurra a página do WhatsApp para a esquerda (nada fica coberto)
     document.head.append(el('style', { id: 'contexto-layout' }, `
-      html.contexto-open #app { width: calc(100vw - 360px) !important; max-width: calc(100vw - 360px) !important; }
+      html.contexto-open #app { width: calc(100vw - 360px) !important; max-width: none !important; }
       html.contexto-open body { overflow: hidden; }
+      /* a página acompanha o painel com a MESMA curva (só liga depois da 1ª pintura, para não animar ao carregar) */
+      html.contexto-ready #app { transition: width .34s cubic-bezier(.22, .9, .3, 1); }
+      @media (prefers-reduced-motion: reduce) { html.contexto-ready #app { transition: none; } }
     `));
 
+    let resizeTimer = null;
     const host = el('div', { id: 'contexto-root' });
     const root = host.attachShadow({ mode: 'open' });
     root.append(el('style', {}, NS.panelCss));
@@ -232,11 +236,10 @@
     const logoBox = el('span', { class: 'tab-logo' }, el('span', { class: 'iso' }, tabLayer('bot'), tabLayer('mid'), tabLayer('top')));
     logoBox.querySelectorAll('img').forEach((i) => i.addEventListener('error', () => {
       logoBox.replaceChildren(el('span', { html: icon('bolt'), style: 'display:contents' }), el('span', { class: 'label' }, 'CONTEXTO'));
-      logoBox.classList.add('fallback');
+      logoBox.classList.add('fallback'); tab.classList.add('fb');
     }, { once: true }));
     const tab = el('button', { class: 'tab', type: 'button', title: 'Abrir/fechar CONTEXTO', 'aria-label': 'Abrir ou fechar CONTEXTO', onclick: () => h.onToggle() },
-      logoBox,
-      el('span', { class: 'tab-arrow tab-open-arrow', html: chev('M15 6l-6 6 6 6') }),
+      el('span', { class: 'tab-closed' }, logoBox, el('span', { class: 'tab-arrow', html: chev('M15 6l-6 6 6 6') })),
       el('span', { class: 'tab-ico', html: chev('M9 6l6 6-6 6') }));
     root.append(tab, panel);
 
@@ -423,6 +426,10 @@
         host.classList.toggle('open', open);
         document.documentElement.classList.toggle('contexto-open', open);
         window.dispatchEvent(new Event('resize')); // o WhatsApp recalcula o tamanho
+        // a página anima a largura: avisa de novo quando termina, para o WhatsApp acertar o tamanho final
+        clearTimeout(resizeTimer); resizeTimer = setTimeout(() => window.dispatchEvent(new Event('resize')), 380);
+        // animações só ligam depois da primeira pintura (ao carregar, o painel já nasce no estado certo)
+        if (!host.classList.contains('ready')) setTimeout(() => { host.classList.add('ready'); document.documentElement.classList.add('contexto-ready'); }, 120);
       },
 
       flash(msg) {
