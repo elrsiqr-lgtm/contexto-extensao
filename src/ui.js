@@ -225,14 +225,19 @@
       btn('icon-btn', 'x', '', () => h.onToggle(), 'Fechar painel'));
 
     const panel = el('aside', { class: 'panel', 'aria-label': 'CONTEXTO' }, brandBar, scroll, foot);
-    // Aba lateral ("puxador"): o C do logo (fechado) ou um ícone discreto (aberto). Se a imagem falhar, volta ao raio + nome.
-    const logoBox = el('span', { class: 'tab-logo' });
-    logoBox.append(el('img', { src: chrome.runtime.getURL('assets/c.png'), alt: '', draggable: 'false', onerror: () => {
+    // Aba lateral ("puxador"). FECHADO: as 3 camadas do isotipo + uma setinha (que se mexem ao passar o mouse).
+    // ABERTO: uma aba fina na borda do painel, só com uma seta para recolher. Se as imagens falharem: raio + nome.
+    const chev = (d) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${d}"/></svg>`;
+    const tabLayer = (k) => el('img', { class: 'iso-' + k, src: chrome.runtime.getURL(`assets/iso-${k}.png`), alt: '', draggable: 'false' });
+    const logoBox = el('span', { class: 'tab-logo' }, el('span', { class: 'iso' }, tabLayer('bot'), tabLayer('mid'), tabLayer('top')));
+    logoBox.querySelectorAll('img').forEach((i) => i.addEventListener('error', () => {
       logoBox.replaceChildren(el('span', { html: icon('bolt'), style: 'display:contents' }), el('span', { class: 'label' }, 'CONTEXTO'));
       logoBox.classList.add('fallback');
-    } }));
+    }, { once: true }));
     const tab = el('button', { class: 'tab', type: 'button', title: 'Abrir/fechar CONTEXTO', 'aria-label': 'Abrir ou fechar CONTEXTO', onclick: () => h.onToggle() },
-      logoBox, el('span', { class: 'tab-ico', html: icon('panel') }));
+      logoBox,
+      el('span', { class: 'tab-arrow tab-open-arrow', html: chev('M15 6l-6 6 6 6') }),
+      el('span', { class: 'tab-ico', html: chev('M9 6l6 6-6 6') }));
     root.append(tab, panel);
 
     // ------------------------------------------------------------ pedaços
