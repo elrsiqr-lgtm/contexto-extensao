@@ -38,7 +38,7 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round
 }
 .tab:hover { transform: translateY(-50%) translateX(-2px); box-shadow: inset 0 1px 0 #fff, -6px 8px 22px rgba(123,47,224,.30); }
 /* puxador: o C do logo (mais alto que largo) */
-.tab-logo { position: relative; display: block; width: 32px; height: 46px; }
+.tab-logo { position: relative; display: block; width: 26px; height: 38px; }
 .tab-logo img { display: block; width: 100%; height: 100%; object-fit: contain; pointer-events: none; user-select: none; }
 .tab-logo.fallback { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 28px; height: auto; padding: 4px 0; color: var(--c-dark); }
 .tab-logo.fallback svg { width: 16px; height: 16px; }
@@ -85,7 +85,7 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round
 .brandbar .grow { flex: 1; }
 .brand-mark { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; letter-spacing: .18em; color: var(--c-dark); }
 .brand-mark svg { width: 16px; height: 16px; color: var(--c-main); }
-.brand-logo { height: 100px; width: auto; max-width: none; user-select: none; -webkit-user-drag: none; }
+.brand-logo { height: 80px; width: auto; max-width: none; user-select: none; -webkit-user-drag: none; }
 .icon-btn { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--c-light); }
 .icon-btn:hover { background: rgba(255,255,255,.12); }
 .brandbar .icon-btn { color: var(--c-mid); margin-top: 8px; }
@@ -259,7 +259,30 @@ textarea.edit-note { min-height: 90px; }
 .foot .link { display: inline-flex; align-items: center; gap: 5px; font-weight: 600; }
 .foot svg { width: 14px; height: 14px; }
 .foot .grow { flex: 1; }
-.logo { width: 38px; height: 38px; object-fit: contain; user-select: none; -webkit-user-drag: none; margin-right: -4px; }
+/* caixinha do autor: fechada por padrão; ao clicar, a figura pula para fora */
+.mark { position: relative; flex: none; width: 38px; height: 38px; margin-right: -4px; border-radius: 10px; }
+.mark:focus-visible { outline: 2px solid var(--c-main); outline-offset: 2px; }
+.mark-closed, .mark-open { position: absolute; inset: 0; width: 100%; height: 100%; user-select: none; -webkit-user-drag: none; }
+.mark-closed svg { display: block; width: 100%; height: 100%; }
+.mark-closed { transform-origin: 50% 90%; transition: opacity .18s ease, transform .3s ease; }
+.mark:not(.open):hover .mark-closed { animation: mark-wiggle .55s ease; }
+.mark-open { opacity: 0; transform: translateY(10px) scale(.55); transform-origin: 50% 88%; transition: opacity .18s ease, transform .5s cubic-bezier(.2, 1.8, .35, 1); pointer-events: none; }
+.mark.open .mark-open { opacity: 1; transform: translateY(-4px) scale(1.3); }
+.mark.open .mark-closed { opacity: 0; transform: scale(.75) translateY(6px); }
+@keyframes mark-wiggle { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-7deg); } 60% { transform: rotate(6deg); } 85% { transform: rotate(-3deg); } }
+.spark { position: absolute; left: 50%; top: 38%; width: 8px; height: 8px; background: var(--c-mid); opacity: 0; pointer-events: none; clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); }
+.mark.open .spark.s1 { animation: spark-a .8s ease-out; }
+.mark.open .spark.s2 { animation: spark-b .8s .06s ease-out; background: var(--c-main); }
+.mark.open .spark.s3 { animation: spark-c .8s .12s ease-out; }
+@keyframes spark-a { 0% { opacity: 1; transform: translate(-50%, 0) scale(.3); } 100% { opacity: 0; transform: translate(-26px, -22px) scale(1.1); } }
+@keyframes spark-b { 0% { opacity: 1; transform: translate(-50%, 0) scale(.3); } 100% { opacity: 0; transform: translate(10px, -30px) scale(1.2); } }
+@keyframes spark-c { 0% { opacity: 1; transform: translate(-50%, 0) scale(.3); } 100% { opacity: 0; transform: translate(22px, -16px) scale(.9); } }
+/* quem prefere menos movimento: a caixa abre e fecha na hora, sem pulinho nem faíscas (vem DEPOIS das regras acima) */
+@media (prefers-reduced-motion: reduce) {
+  .mark-closed, .mark-open { transition: none; }
+  .mark:not(.open):hover .mark-closed, .mark.open .spark.s1, .mark.open .spark.s2, .mark.open .spark.s3 { animation: none; }
+  .mark.open .mark-open { transform: none; }
+}
 .ver { font-size: 10.5px; color: var(--c-mid); border-radius: 999px; padding: 2px 6px; }
 .ver:hover { background: var(--c-light); color: var(--c-dark); }
 .toast { position: absolute; left: 14px; right: 14px; bottom: calc(100% + 8px); background: var(--c-dark); color: #fff; font-size: 11.5px; line-height: 1.4; font-weight: 600; padding: 9px 14px; border-radius: 14px; box-shadow: 0 6px 24px rgba(27,21,53,.25); }
