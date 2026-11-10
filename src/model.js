@@ -26,7 +26,7 @@
   }
 
   function formatPhone(d) {
-    if (!d) return '';
+    if (!d || isGroup(d)) return '';
     if (d.startsWith('55') && (d.length === 12 || d.length === 13)) {
       const ddd = d.slice(2, 4);
       const r = d.slice(4);
@@ -57,6 +57,7 @@
     return {
       phone,
       name: name || '',
+      kind: isGroup(phone) ? 'group' : 'contact',
       createdAt: t,
       updatedAt: t,
       summary: { text: '', updatedAt: null },
@@ -65,20 +66,26 @@
     };
   }
 
-  /** O histórico guarda só os últimos 7 dias (notas e demandas NÃO são apagadas). */
-  const HISTORY_DAYS = 7;
+  /**
+   * Demandas JÁ CONCLUÍDAS ("baixadas") ficam só 7 dias e depois são apagadas.
+   * Notas, demandas pendentes e histórico NÃO expiram.
+   */
+  const DONE_DAYS = 7;
 
-  /** Remove do histórico o que passou de 7 dias. Devolve quantos registros saíram. */
-  function pruneHistory(conv, now = Date.now()) {
-    const limit = now - HISTORY_DAYS * 24 * 60 * 60 * 1000;
-    const before = conv.history.length;
-    conv.history = conv.history.filter((e) => Date.parse(e.at) >= limit);
-    return before - conv.history.length;
+  /** Remove as demandas concluídas há mais de 7 dias. Devolve quantas saíram. */
+  function pruneDone(conv, now = Date.now()) {
+    const limit = now - DONE_DAYS * 24 * 60 * 60 * 1000;
+    const before = conv.demands.length;
+    conv.demands = conv.demands.filter((d) => !(d.done && d.doneAt && Date.parse(d.doneAt) < limit));
+    return before - conv.demands.length;
   }
+
+  // Grupos não têm número: são identificados pelo NOME, com a chave "g:nome-normalizado".
+  const isGroup = (key) => typeof key === 'string' && key.startsWith('g:');
+  const groupKey = (name) => 'g:' + nameKey(name);
 
   function log(conv, type, text, at) {
     conv.history.push({ id: uid(), at: at || nowIso(), type, text });
-    pruneHistory(conv);
   }
 
   /**
@@ -151,7 +158,7 @@
   }
 
   NS.model = {
-    HISTORY_DAYS, pruneHistory, uid, normalizePhone, formatPhone, looksLikePhone, nameKey,
+    DONE_DAYS, pruneDone, isGroup, groupKey, uid, normalizePhone, formatPhone, looksLikePhone, nameKey,
     emptyConversation, setSummary, addDemand, editDemand, toggleDemand, removeDemand,
   };
 })();

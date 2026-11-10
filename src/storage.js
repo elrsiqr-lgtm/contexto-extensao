@@ -13,7 +13,8 @@
  *   saveConversation(conv)        -> grava a conversa (conv.phone é a chave)
  *   listConversations()           -> lista com TODAS as conversas (usado na limpeza de 7 dias)
  *   getAliases()                  -> { "nome normalizado": "5511999999999" }
- *   setAlias(nameKey, phone)      -> lembra a associação nome -> número
+ *   setAlias(nameKey, phone)      -> lembra a associação nome -> número (ou "g:nome" para grupos)
+ *   removeAlias(nameKey)          -> esquece a associação (para trocar número/grupo)
  *   getUi() / setUi(partial)      -> preferências visuais (ex.: painel aberto)
  *   exportAll()                   -> objeto com TODOS os registros (backup)
  *   importAll(data)               -> { conversations, aliases } importados
@@ -54,6 +55,12 @@
     async setAlias(nameKey, phone) {
       const aliases = await this.getAliases();
       aliases[nameKey] = phone;
+      await area.set({ [KEY_ALIASES]: aliases });
+    },
+
+    async removeAlias(nameKey) {
+      const aliases = await this.getAliases();
+      delete aliases[nameKey];
       await area.set({ [KEY_ALIASES]: aliases });
     },
 

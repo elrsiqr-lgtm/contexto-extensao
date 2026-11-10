@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "CONTEXTO",
-  "version": "1.2.0",
+  "version": "1.2.4",
   "description": "Painel de anotações ao lado das conversas do WhatsApp Web: resumo, demandas e histórico por cliente.",
   "permissions": ["storage", "unlimitedStorage"],
   "icons": {
@@ -25,7 +25,7 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["fonts/*.woff2"],
+      "resources": ["fonts/*.woff2", "assets/*.png"],
       "matches": ["https://web.whatsapp.com/*"]
     }
   ]
