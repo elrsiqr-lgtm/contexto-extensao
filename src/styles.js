@@ -264,11 +264,13 @@ textarea.edit-note { min-height: 90px; }
 .mark:focus-visible { outline: 2px solid var(--c-main); outline-offset: 2px; }
 .mark-closed, .mark-open { position: absolute; inset: 0; width: 100%; height: 100%; user-select: none; -webkit-user-drag: none; }
 .mark-closed svg { display: block; width: 100%; height: 100%; }
-.mark-closed { transform-origin: 50% 90%; transition: opacity .18s ease, transform .3s ease; }
+.mark-closed { transform-origin: 50% 90%; transition: opacity .16s ease; }
 .mark:not(.open):hover .mark-closed { animation: mark-wiggle .55s ease; }
-.mark-open { opacity: 0; transform: translateY(10px) scale(.55); transform-origin: 50% 88%; transition: opacity .18s ease, transform .5s cubic-bezier(.2, 1.8, .35, 1); pointer-events: none; }
-.mark.open .mark-open { opacity: 1; transform: translateY(-4px) scale(1.3); }
-.mark.open .mark-closed { opacity: 0; transform: scale(.75) translateY(6px); }
+.mark-open { opacity: 0; transform-origin: 50% 88%; transition: opacity .16s ease; pointer-events: none; }
+/* aberta: a figura dá um pulinho para fora e ASSENTA no mesmo tamanho da caixa fechada (sem crescer) */
+.mark.open .mark-open { opacity: 1; animation: mark-pop .6s cubic-bezier(.2, 1.3, .4, 1) both; }
+.mark.open .mark-closed { opacity: 0; }
+@keyframes mark-pop { 0% { opacity: 0; transform: translateY(12px) scale(.6); } 35% { opacity: 1; } 60% { transform: translateY(-8px) scale(1.12); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
 @keyframes mark-wiggle { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-7deg); } 60% { transform: rotate(6deg); } 85% { transform: rotate(-3deg); } }
 .spark { position: absolute; left: 50%; top: 38%; width: 8px; height: 8px; background: var(--c-mid); opacity: 0; pointer-events: none; clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); }
 .mark.open .spark.s1 { animation: spark-a .8s ease-out; }
@@ -280,8 +282,7 @@ textarea.edit-note { min-height: 90px; }
 /* quem prefere menos movimento: a caixa abre e fecha na hora, sem pulinho nem faíscas (vem DEPOIS das regras acima) */
 @media (prefers-reduced-motion: reduce) {
   .mark-closed, .mark-open { transition: none; }
-  .mark:not(.open):hover .mark-closed, .mark.open .spark.s1, .mark.open .spark.s2, .mark.open .spark.s3 { animation: none; }
-  .mark.open .mark-open { transform: none; }
+  .mark:not(.open):hover .mark-closed, .mark.open .spark.s1, .mark.open .spark.s2, .mark.open .spark.s3, .mark.open .mark-open { animation: none; }
 }
 .ver { font-size: 10.5px; color: var(--c-mid); border-radius: 999px; padding: 2px 6px; }
 .ver:hover { background: var(--c-light); color: var(--c-dark); }
