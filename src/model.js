@@ -62,6 +62,7 @@
       updatedAt: t,
       summary: { text: '', updatedAt: null },
       demands: [],
+      savedNotes: [],
       history: [],
     };
   }
@@ -83,6 +84,14 @@
   // Grupos não têm número: são identificados pelo NOME, com a chave "g:nome-normalizado".
   const isGroup = (key) => typeof key === 'string' && key.startsWith('g:');
   const groupKey = (name) => 'g:' + nameKey(name);
+
+  /** Conversas antigas não têm 'savedNotes': garante os campos para não quebrar. */
+  function ensureConversation(conv) {
+    if (!Array.isArray(conv.demands)) conv.demands = [];
+    if (!Array.isArray(conv.history)) conv.history = [];
+    if (!Array.isArray(conv.savedNotes)) conv.savedNotes = [];
+    return conv;
+  }
 
   function log(conv, type, text, at) {
     conv.history.push({ id: uid(), at: at || nowIso(), type, text });
@@ -157,7 +166,40 @@
     log(conv, 'demand_removed', d.text, t);
   }
 
+  const clip = (t, n = 140) => (t.length > n ? t.slice(0, n).trimEnd() + '…' : t);
+
+  /** Notas salvas: cópias datadas do que foi escrito em "Notas importantes". */
+  function addSavedNote(conv, text) {
+    ensureConversation(conv);
+    const t = nowIso();
+    const n = { id: uid(), text, createdAt: t, updatedAt: t };
+    conv.savedNotes.push(n);
+    conv.updatedAt = t;
+    log(conv, 'note_saved', clip(text), t);
+    return n;
+  }
+
+  function editSavedNote(conv, id, text) {
+    ensureConversation(conv);
+    const n = conv.savedNotes.find((x) => x.id === id);
+    if (!n || n.text === text) return;
+    const t = nowIso();
+    n.text = text; n.updatedAt = t; conv.updatedAt = t;
+    log(conv, 'note_edited', clip(text), t);
+  }
+
+  function removeSavedNote(conv, id) {
+    ensureConversation(conv);
+    const i = conv.savedNotes.findIndex((x) => x.id === id);
+    if (i < 0) return;
+    const [n] = conv.savedNotes.splice(i, 1);
+    const t = nowIso();
+    conv.updatedAt = t;
+    log(conv, 'note_removed', clip(n.text), t);
+  }
+
   NS.model = {
+    ensureConversation, addSavedNote, editSavedNote, removeSavedNote,
     DONE_DAYS, pruneDone, isGroup, groupKey, uid, normalizePhone, formatPhone, looksLikePhone, nameKey,
     emptyConversation, setSummary, addDemand, editDemand, toggleDemand, removeDemand,
   };

@@ -37,8 +37,8 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round
   transition: transform .15s ease, right .2s ease, box-shadow .15s ease;
 }
 .tab:hover { transform: translateY(-50%) translateX(-2px); box-shadow: inset 0 1px 0 #fff, -6px 8px 22px rgba(123,47,224,.30); }
-/* puxador: o C do logo */
-.tab-logo { position: relative; display: block; width: 34px; height: 34px; }
+/* puxador: o C do logo (mais alto que largo) */
+.tab-logo { position: relative; display: block; width: 26px; height: 38px; }
 .tab-logo img { display: block; width: 100%; height: 100%; object-fit: contain; pointer-events: none; user-select: none; }
 .tab-logo.fallback { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 28px; height: auto; padding: 4px 0; color: var(--c-dark); }
 .tab-logo.fallback svg { width: 16px; height: 16px; }
@@ -81,14 +81,14 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round
     0 6px 12px rgba(27,21,53,.28),
     0 22px 38px -12px rgba(27,21,53,.60);
 }
-.brandbar { flex: none; display: flex; align-items: center; padding: 8px 14px 0 14px; }
+.brandbar { flex: none; display: flex; align-items: flex-start; padding: 6px 14px 0 12px; }
 .brandbar .grow { flex: 1; }
 .brand-mark { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; letter-spacing: .18em; color: var(--c-dark); }
 .brand-mark svg { width: 16px; height: 16px; color: var(--c-main); }
-.brand-logo { height: 54px; width: auto; user-select: none; -webkit-user-drag: none; }
+.brand-logo { height: 80px; width: auto; max-width: none; user-select: none; -webkit-user-drag: none; }
 .icon-btn { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--c-light); }
 .icon-btn:hover { background: rgba(255,255,255,.12); }
-.brandbar .icon-btn { color: var(--c-mid); }
+.brandbar .icon-btn { color: var(--c-mid); margin-top: 8px; }
 .brandbar .icon-btn:hover { background: var(--c-light); color: var(--c-dark); }
 .icon-btn svg { width: 16px; height: 16px; }
 .client { margin-top: 0; font-size: 19px; font-weight: 600; line-height: 1.25; word-break: break-word; }
@@ -209,6 +209,25 @@ input.due-edit { width: auto; padding: 4px 8px; border-radius: 12px; font-size: 
 .prompt .row { display: flex; gap: 8px; }
 .err { margin-top: 8px; font-size: 11.5px; color: var(--c-main); font-weight: 600; }
 
+/* ---------- abas (Principal | Notas salvas | Histórico) ---------- */
+.seg { display: flex; gap: 4px; padding: 4px; background: var(--c-light); border-radius: 999px; box-shadow: inset 0 2px 5px rgba(27,21,53,.10); flex: none; }
+.seg-btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 6px; border-radius: 999px; font-size: 11.5px; font-weight: 600; color: var(--c-dark); opacity: .72; white-space: nowrap; transition: background .15s, opacity .15s, box-shadow .15s; }
+.seg-btn:hover { opacity: 1; }
+.seg-btn.on { background: #fff; opacity: 1; color: var(--c-main); box-shadow: inset 0 1px 0 #fff, 0 4px 10px -4px rgba(27,21,53,.40); }
+.seg-btn .count { font-size: 10px; line-height: 1; padding: 3px 6px; border-radius: 999px; background: rgba(27,21,53,.14); color: var(--c-dark); }
+.seg-btn.on .count { background: var(--c-main); color: #fff; }
+.save-row { margin-top: 10px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.save-row .btn { padding: 7px 14px; }
+.note-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.note { background: linear-gradient(180deg, #FFFFFF 0%, var(--c-bg) 100%); border: 1px solid #EFE9FC; border-radius: 16px; padding: 12px; box-shadow: inset 0 1px 0 #fff, 0 4px 8px -4px rgba(27,21,53,.14); }
+.note-h { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.note-actions { margin-left: auto; display: flex; gap: 2px; }
+.note-txt { white-space: pre-wrap; word-break: break-word; font-size: 13px; line-height: 1.5; cursor: text; }
+.mini { width: 26px; height: 26px; border-radius: 50%; color: var(--c-mid); display: flex; align-items: center; justify-content: center; }
+.mini:hover { background: var(--c-light); color: var(--c-dark); }
+.mini svg { width: 14px; height: 14px; }
+textarea.edit-note { min-height: 90px; }
+
 /* ---------- grupo / trocar identificação ---------- */
 .or { text-align: center; font-size: 11px; color: var(--c-mid); margin: 14px 0 10px; }
 .hero-link { display: block; margin-top: 12px; font-size: 11px; color: var(--c-light); text-decoration: underline; opacity: .85; }
@@ -240,7 +259,31 @@ input.due-edit { width: auto; padding: 4px 8px; border-radius: 12px; font-size: 
 .foot .link { display: inline-flex; align-items: center; gap: 5px; font-weight: 600; }
 .foot svg { width: 14px; height: 14px; }
 .foot .grow { flex: 1; }
-.logo { width: 38px; height: 38px; object-fit: contain; user-select: none; -webkit-user-drag: none; margin-right: -4px; }
+/* caixinha do autor: fechada por padrão; ao clicar, a figura pula para fora */
+.mark { position: relative; flex: none; width: 38px; height: 38px; margin-right: -4px; border-radius: 10px; }
+.mark:focus-visible { outline: 2px solid var(--c-main); outline-offset: 2px; }
+.mark-closed, .mark-open { position: absolute; inset: 0; width: 100%; height: 100%; user-select: none; -webkit-user-drag: none; }
+.mark-closed svg { display: block; width: 100%; height: 100%; }
+.mark-closed { transform-origin: 50% 90%; transition: opacity .16s ease; }
+.mark:not(.open):hover .mark-closed { animation: mark-wiggle .55s ease; }
+.mark-open { opacity: 0; transform-origin: 50% 88%; transition: opacity .16s ease; pointer-events: none; }
+/* aberta: a figura dá um pulinho para fora e ASSENTA no mesmo tamanho da caixa fechada (sem crescer) */
+.mark.open .mark-open { opacity: 1; animation: mark-pop .6s cubic-bezier(.2, 1.3, .4, 1) both; }
+.mark.open .mark-closed { opacity: 0; }
+@keyframes mark-pop { 0% { opacity: 0; transform: translateY(12px) scale(.6); } 35% { opacity: 1; } 60% { transform: translateY(-8px) scale(1.12); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes mark-wiggle { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-7deg); } 60% { transform: rotate(6deg); } 85% { transform: rotate(-3deg); } }
+.spark { position: absolute; left: 50%; top: 38%; width: 8px; height: 8px; background: var(--c-mid); opacity: 0; pointer-events: none; clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); }
+.mark.open .spark.s1 { animation: spark-a .8s ease-out; }
+.mark.open .spark.s2 { animation: spark-b .8s .06s ease-out; background: var(--c-main); }
+.mark.open .spark.s3 { animation: spark-c .8s .12s ease-out; }
+@keyframes spark-a { 0% { opacity: 1; transform: translate(-50%, 0) scale(.3); } 100% { opacity: 0; transform: translate(-26px, -22px) scale(1.1); } }
+@keyframes spark-b { 0% { opacity: 1; transform: translate(-50%, 0) scale(.3); } 100% { opacity: 0; transform: translate(10px, -30px) scale(1.2); } }
+@keyframes spark-c { 0% { opacity: 1; transform: translate(-50%, 0) scale(.3); } 100% { opacity: 0; transform: translate(22px, -16px) scale(.9); } }
+/* quem prefere menos movimento: a caixa abre e fecha na hora, sem pulinho nem faíscas (vem DEPOIS das regras acima) */
+@media (prefers-reduced-motion: reduce) {
+  .mark-closed, .mark-open { transition: none; }
+  .mark:not(.open):hover .mark-closed, .mark.open .spark.s1, .mark.open .spark.s2, .mark.open .spark.s3, .mark.open .mark-open { animation: none; }
+}
 .ver { font-size: 10.5px; color: var(--c-mid); border-radius: 999px; padding: 2px 6px; }
 .ver:hover { background: var(--c-light); color: var(--c-dark); }
 .toast { position: absolute; left: 14px; right: 14px; bottom: calc(100% + 8px); background: var(--c-dark); color: #fff; font-size: 11.5px; line-height: 1.4; font-weight: 600; padding: 9px 14px; border-radius: 14px; box-shadow: 0 6px 24px rgba(27,21,53,.25); }
