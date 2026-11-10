@@ -37,8 +37,8 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round
   transition: transform .15s ease, right .2s ease, box-shadow .15s ease;
 }
 .tab:hover { transform: translateY(-50%) translateX(-2px); box-shadow: inset 0 1px 0 #fff, -6px 8px 22px rgba(123,47,224,.30); }
-/* puxador: o C do logo */
-.tab-logo { position: relative; display: block; width: 34px; height: 34px; }
+/* puxador: o C do logo (mais alto que largo) */
+.tab-logo { position: relative; display: block; width: 32px; height: 46px; }
 .tab-logo img { display: block; width: 100%; height: 100%; object-fit: contain; pointer-events: none; user-select: none; }
 .tab-logo.fallback { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 28px; height: auto; padding: 4px 0; color: var(--c-dark); }
 .tab-logo.fallback svg { width: 16px; height: 16px; }
