@@ -63,7 +63,7 @@ Seus dados não são perdidos ao atualizar. Mesmo assim, é boa prática exporta
 ```
 manifest.json        Configuração da extensão (Manifest V3)
 fonts/               Fonte Sora (embutida)
-assets/              logo.png = logo do CONTEXTO (topo do painel e este README); c.png = o "C" do puxador (aba lateral); autor.png = marca do autor (rodapé do painel)
+assets/              logo.png = logo do CONTEXTO (topo do painel e este README); c.png = o desenho (camadas) do logo, usado no puxador (aba lateral); autor.png = marca do autor (rodapé do painel)
 icons/               Ícones da extensão (o "C" em 16, 48 e 128 px)
 src/
   storage.js         ÚNICO lugar que sabe onde os dados ficam
