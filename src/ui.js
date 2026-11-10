@@ -188,6 +188,9 @@
       btn('link', 'download', 'Exportar', () => h.onExport(), 'Exportar backup de todos os registros'),
       btn('link', 'upload', 'Importar', () => fileInput.click(), 'Importar backup'),
       el('span', { class: 'grow' }), toast,
+      // Marca do autor (discreta). Se a imagem não carregar, ela some sem deixar espaço.
+      el('img', { class: 'logo', src: chrome.runtime.getURL('assets/logo.png'), alt: 'Marca do autor', title: 'CONTEXTO',
+        draggable: 'false', onerror: (e) => e.target.remove() }),
       el('button', { class: 'ver', type: 'button', title: 'Copiar informações para suporte (só textos do cabeçalho da conversa)', onclick: () => h.onDiagnostic() },
         `v${chrome.runtime.getManifest().version}`),
       fileInput);
