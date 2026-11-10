@@ -207,8 +207,16 @@
     root.append(tab, panel);
 
     // ------------------------------------------------------------ pedaços
+    // Topo do painel: o logo CONTEXTO. Se a imagem falhar, volta ao raio + nome em texto.
+    const brandMark = () => {
+      const box = el('span', { class: 'brand-mark' });
+      box.append(el('img', { class: 'brand-logo', src: logoUrl, alt: 'CONTEXTO', draggable: 'false', onerror: () => {
+        box.replaceChildren(el('span', { html: icon('bolt'), style: 'display:contents' }), 'CONTEXTO');
+      } }));
+      return box;
+    };
     const brandRow = () => el('div', { class: 'brand' },
-      el('span', { html: icon('bolt'), style: 'display:contents' }), 'CONTEXTO', el('span', { class: 'grow' }),
+      brandMark(), el('span', { class: 'grow' }),
       btn('icon-btn', 'x', '', () => h.onToggle(), 'Fechar painel'));
 
     function heroEmpty() {

@@ -84,6 +84,9 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round
 .brand { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; letter-spacing: .18em; color: var(--c-light); }
 .brand svg { width: 16px; height: 16px; color: var(--c-mid); }
 .brand .grow { flex: 1; }
+.brand-mark { display: inline-flex; align-items: center; gap: 8px; }
+/* o logo tem contorno azul-marinho: um brilho branco fino o destaca sobre o fundo escuro do topo */
+.brand-logo { height: 36px; width: auto; filter: drop-shadow(0 0 1.5px rgba(255,255,255,.95)) drop-shadow(0 0 1px rgba(255,255,255,.9)); user-select: none; -webkit-user-drag: none; }
 .icon-btn { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--c-light); }
 .icon-btn:hover { background: rgba(255,255,255,.12); }
 .icon-btn svg { width: 16px; height: 16px; }
@@ -236,7 +239,7 @@ input.due-edit { width: auto; padding: 4px 8px; border-radius: 12px; font-size: 
 .foot .link { display: inline-flex; align-items: center; gap: 5px; font-weight: 600; }
 .foot svg { width: 14px; height: 14px; }
 .foot .grow { flex: 1; }
-.logo { width: 24px; height: 24px; object-fit: contain; user-select: none; -webkit-user-drag: none; margin-right: -6px; }
+.logo { width: 38px; height: 38px; object-fit: contain; user-select: none; -webkit-user-drag: none; margin-right: -4px; }
 .ver { font-size: 10.5px; color: var(--c-mid); border-radius: 999px; padding: 2px 6px; }
 .ver:hover { background: var(--c-light); color: var(--c-dark); }
 .toast { position: absolute; left: 14px; right: 14px; bottom: calc(100% + 8px); background: var(--c-dark); color: #fff; font-size: 11.5px; line-height: 1.4; font-weight: 600; padding: 9px 14px; border-radius: 14px; box-shadow: 0 6px 24px rgba(27,21,53,.25); }
