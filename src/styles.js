@@ -62,10 +62,10 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round
   /* A barra de rolagem (6 px) fica SEMPRE reservada à direita; por isso o recuo da direita é 6 px menor,
      e as margens ficam iguais (14 px) dos dois lados, com ou sem barra. */
   scrollbar-gutter: stable;
-  padding: 14px 8px 16px 14px;
+  padding: 10px 8px 16px 14px;
   /* O conteúdo some suavemente nas bordas de cima e de baixo (em vez de ser cortado seco). */
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 16px), transparent 100%);
-  mask-image: linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 16px), transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 10px, #000 calc(100% - 16px), transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 10px, #000 calc(100% - 16px), transparent 100%);
 }
 .scroll::-webkit-scrollbar { width: 6px; }
 .scroll::-webkit-scrollbar-track { background: transparent; }
@@ -74,26 +74,27 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round
 /* ---------- topo ---------- */
 .hero {
   background: linear-gradient(155deg, #2D2257 0%, #1B1535 55%, #140E29 100%);
-  color: #fff; border-radius: 24px; padding: 14px 18px 18px;
+  color: #fff; border-radius: 24px; padding: 18px 18px 18px;
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,.16),
     inset 0 -3px 0 rgba(0,0,0,.28),
     0 6px 12px rgba(27,21,53,.28),
     0 22px 38px -12px rgba(27,21,53,.60);
 }
-.brand { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; letter-spacing: .18em; color: var(--c-light); }
-.brand svg { width: 16px; height: 16px; color: var(--c-mid); }
-.brand .grow { flex: 1; }
-.brand-mark { display: inline-flex; align-items: center; gap: 8px; }
-/* o logo tem contorno azul-marinho: um brilho branco fino o destaca sobre o fundo escuro do topo */
-.brand-logo { height: 36px; width: auto; filter: drop-shadow(0 0 1.5px rgba(255,255,255,.95)) drop-shadow(0 0 1px rgba(255,255,255,.9)); user-select: none; -webkit-user-drag: none; }
+.brandbar { flex: none; display: flex; align-items: center; padding: 10px 14px 0 16px; }
+.brandbar .grow { flex: 1; }
+.brand-mark { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; letter-spacing: .18em; color: var(--c-dark); }
+.brand-mark svg { width: 16px; height: 16px; color: var(--c-main); }
+.brand-logo { height: 34px; width: auto; user-select: none; -webkit-user-drag: none; }
 .icon-btn { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--c-light); }
 .icon-btn:hover { background: rgba(255,255,255,.12); }
+.brandbar .icon-btn { color: var(--c-mid); }
+.brandbar .icon-btn:hover { background: var(--c-light); color: var(--c-dark); }
 .icon-btn svg { width: 16px; height: 16px; }
-.client { margin-top: 14px; font-size: 19px; font-weight: 600; line-height: 1.25; word-break: break-word; }
+.client { margin-top: 0; font-size: 19px; font-weight: 600; line-height: 1.25; word-break: break-word; }
 .phone { margin-top: 4px; font-size: 12.5px; color: var(--c-light); letter-spacing: .02em; }
 .hero .pill { margin-top: 12px; }
-.hero-empty { font-size: 13px; line-height: 1.6; color: var(--c-light); margin-top: 12px; }
+.hero-empty { font-size: 13px; line-height: 1.6; color: var(--c-light); margin-top: 0; }
 
 /* ---------- cartões ---------- */
 .card {
