@@ -1,4 +1,4 @@
-<p align="center"><img src="assets/logo.png" alt="Marca do autor" width="120"></p>
+<p align="center"><img src="assets/logo.png" alt="CONTEXTO" width="220"></p>
 
 # CONTEXTO
 
@@ -61,7 +61,7 @@ Seus dados não são perdidos ao atualizar. Mesmo assim, é boa prática exporta
 ```
 manifest.json        Configuração da extensão (Manifest V3)
 fonts/               Fonte Sora (embutida)
-assets/              Logo do autor (assets/logo.png, usado no rodapé do painel e neste README)
+assets/              Logo do CONTEXTO (assets/logo.png: aba lateral, rodapé do painel e este README)
 icons/               Ícones da extensão
 src/
   storage.js         ÚNICO lugar que sabe onde os dados ficam

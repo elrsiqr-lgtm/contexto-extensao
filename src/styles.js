@@ -29,18 +29,26 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round
 :host { position: fixed; top: 0; right: 0; width: 0; height: 0; z-index: 2147483647; }
 .tab {
   position: fixed; top: 50%; right: 0; transform: translateY(-50%);
-  min-width: 30px; padding: 12px 0; border-radius: 14px 0 0 14px;
-  background: var(--c-dark); color: #fff; opacity: .92;
-  display: flex; flex-direction: column; align-items: center; gap: 10px;
-  box-shadow: 0 4px 18px rgba(27,21,53,.25);
-  transition: opacity .15s, right .2s;
+  padding: 8px 3px; border-radius: 16px 0 0 16px;
+  background: linear-gradient(90deg, #FFFFFF 0%, #F4EFFF 100%);
+  border: 1px solid #E3D9FA; border-right: 0;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: inset 0 1px 0 #fff, -4px 6px 18px rgba(27,21,53,.22);
+  transition: transform .15s ease, right .2s ease, box-shadow .15s ease;
 }
-.tab:hover { opacity: 1; background: var(--c-main); }
-.tab svg { width: 16px; height: 16px; }
+.tab:hover { transform: translateY(-50%) translateX(-2px); box-shadow: inset 0 1px 0 #fff, -6px 8px 22px rgba(123,47,224,.30); }
+/* o logo é horizontal: giramos para caber na aba vertical (lê-se de cima para baixo) */
+.tab-logo { position: relative; display: block; width: 34px; height: 64px; }
+.tab-logo img { position: absolute; left: 50%; top: 50%; width: 64px; height: auto; transform: translate(-50%, -50%) rotate(90deg); pointer-events: none; user-select: none; }
+.tab-logo.fallback { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 28px; height: auto; padding: 4px 0; color: var(--c-dark); }
+.tab-logo.fallback svg { width: 16px; height: 16px; }
 .tab .label { writing-mode: vertical-rl; font-size: 10.5px; font-weight: 700; letter-spacing: .18em; }
-:host(.open) .tab { right: var(--w); opacity: .6; padding: 10px 0; }
-:host(.open) .tab .label { display: none; }
-:host(.open) .tab:hover { opacity: 1; }
+.tab-ico { display: none; color: var(--c-dark); padding: 4px 3px; }
+.tab-ico svg { width: 16px; height: 16px; }
+/* painel aberto: a aba fica na borda do painel, só com um ícone discreto */
+:host(.open) .tab { right: var(--w); padding: 8px 4px; }
+:host(.open) .tab-logo { display: none; }
+:host(.open) .tab-ico { display: block; }
 
 /* ---------- painel ---------- */
 .panel {
@@ -228,7 +236,7 @@ input.due-edit { width: auto; padding: 4px 8px; border-radius: 12px; font-size: 
 .foot .link { display: inline-flex; align-items: center; gap: 5px; font-weight: 600; }
 .foot svg { width: 14px; height: 14px; }
 .foot .grow { flex: 1; }
-.logo { width: 24px; height: 24px; object-fit: contain; opacity: .92; user-select: none; -webkit-user-drag: none; margin-right: -6px; }
+.logo { height: 24px; width: auto; max-width: 60px; object-fit: contain; user-select: none; -webkit-user-drag: none; margin-right: -4px; }
 .ver { font-size: 10.5px; color: var(--c-mid); border-radius: 999px; padding: 2px 6px; }
 .ver:hover { background: var(--c-light); color: var(--c-dark); }
 .toast { position: absolute; left: 14px; right: 14px; bottom: calc(100% + 8px); background: var(--c-dark); color: #fff; font-size: 11.5px; line-height: 1.4; font-weight: 600; padding: 9px 14px; border-radius: 14px; box-shadow: 0 6px 24px rgba(27,21,53,.25); }

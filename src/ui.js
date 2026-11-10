@@ -184,20 +184,26 @@
     const fileInput = el('input', { type: 'file', accept: '.json,application/json', style: 'display:none' });
     fileInput.addEventListener('change', () => { if (fileInput.files[0]) h.onImport(fileInput.files[0]); fileInput.value = ''; });
 
+    const logoUrl = chrome.runtime.getURL('assets/logo.png');
     const foot = el('div', { class: 'foot' },
       btn('link', 'download', 'Exportar', () => h.onExport(), 'Exportar backup de todos os registros'),
       btn('link', 'upload', 'Importar', () => fileInput.click(), 'Importar backup'),
       el('span', { class: 'grow' }), toast,
-      // Marca do autor (discreta). Se a imagem não carregar, ela some sem deixar espaço.
-      el('img', { class: 'logo', src: chrome.runtime.getURL('assets/logo.png'), alt: 'Marca do autor', title: 'CONTEXTO',
-        draggable: 'false', onerror: (e) => e.target.remove() }),
+      // Logo (discreto). Se a imagem não carregar, ela some sem deixar espaço.
+      el('img', { class: 'logo', src: logoUrl, alt: 'CONTEXTO', title: 'CONTEXTO', draggable: 'false', onerror: (e) => e.target.remove() }),
       el('button', { class: 'ver', type: 'button', title: 'Copiar informações para suporte (só textos do cabeçalho da conversa)', onclick: () => h.onDiagnostic() },
         `v${chrome.runtime.getManifest().version}`),
       fileInput);
 
     const panel = el('aside', { class: 'panel', 'aria-label': 'CONTEXTO' }, scroll, foot);
+    // Aba lateral: o logo na vertical (fechado) ou um ícone discreto (aberto). Se a imagem falhar, volta ao raio + nome.
+    const logoBox = el('span', { class: 'tab-logo' });
+    logoBox.append(el('img', { src: logoUrl, alt: '', draggable: 'false', onerror: () => {
+      logoBox.replaceChildren(el('span', { html: icon('bolt'), style: 'display:contents' }), el('span', { class: 'label' }, 'CONTEXTO'));
+      logoBox.classList.add('fallback');
+    } }));
     const tab = el('button', { class: 'tab', type: 'button', title: 'Abrir/fechar CONTEXTO', 'aria-label': 'Abrir ou fechar CONTEXTO', onclick: () => h.onToggle() },
-      el('span', { html: icon('bolt'), style: 'display:contents' }), el('span', { class: 'label' }, 'CONTEXTO'));
+      logoBox, el('span', { class: 'tab-ico', html: icon('panel') }));
     root.append(tab, panel);
 
     // ------------------------------------------------------------ pedaços
