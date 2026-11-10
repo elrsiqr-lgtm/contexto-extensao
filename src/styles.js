@@ -29,7 +29,7 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round
 :host { position: fixed; top: 0; right: 0; width: 0; height: 0; z-index: 2147483647; }
 .tab {
   position: fixed; top: 50%; right: 0; transform: translateY(-50%);
-  padding: 8px 3px; border-radius: 16px 0 0 16px;
+  padding: 10px 5px 10px 8px; border-radius: 18px 0 0 18px;
   background: linear-gradient(90deg, #FFFFFF 0%, #F4EFFF 100%);
   border: 1px solid #E3D9FA; border-right: 0;
   display: flex; align-items: center; justify-content: center;
@@ -37,9 +37,9 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round
   transition: transform .15s ease, right .2s ease, box-shadow .15s ease;
 }
 .tab:hover { transform: translateY(-50%) translateX(-2px); box-shadow: inset 0 1px 0 #fff, -6px 8px 22px rgba(123,47,224,.30); }
-/* o logo é horizontal: giramos para caber na aba vertical (lê-se de cima para baixo) */
-.tab-logo { position: relative; display: block; width: 34px; height: 64px; }
-.tab-logo img { position: absolute; left: 50%; top: 50%; width: 64px; height: auto; transform: translate(-50%, -50%) rotate(90deg); pointer-events: none; user-select: none; }
+/* puxador: o C do logo */
+.tab-logo { position: relative; display: block; width: 34px; height: 34px; }
+.tab-logo img { display: block; width: 100%; height: 100%; object-fit: contain; pointer-events: none; user-select: none; }
 .tab-logo.fallback { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 28px; height: auto; padding: 4px 0; color: var(--c-dark); }
 .tab-logo.fallback svg { width: 16px; height: 16px; }
 .tab .label { writing-mode: vertical-rl; font-size: 10.5px; font-weight: 700; letter-spacing: .18em; }
@@ -81,11 +81,11 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round
     0 6px 12px rgba(27,21,53,.28),
     0 22px 38px -12px rgba(27,21,53,.60);
 }
-.brandbar { flex: none; display: flex; align-items: center; padding: 10px 14px 0 16px; }
+.brandbar { flex: none; display: flex; align-items: center; padding: 8px 14px 0 14px; }
 .brandbar .grow { flex: 1; }
 .brand-mark { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; letter-spacing: .18em; color: var(--c-dark); }
 .brand-mark svg { width: 16px; height: 16px; color: var(--c-main); }
-.brand-logo { height: 34px; width: auto; user-select: none; -webkit-user-drag: none; }
+.brand-logo { height: 54px; width: auto; user-select: none; -webkit-user-drag: none; }
 .icon-btn { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--c-light); }
 .icon-btn:hover { background: rgba(255,255,255,.12); }
 .brandbar .icon-btn { color: var(--c-mid); }

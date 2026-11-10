@@ -209,9 +209,9 @@
       btn('icon-btn', 'x', '', () => h.onToggle(), 'Fechar painel'));
 
     const panel = el('aside', { class: 'panel', 'aria-label': 'CONTEXTO' }, brandBar, scroll, foot);
-    // Aba lateral: o logo na vertical (fechado) ou um ícone discreto (aberto). Se a imagem falhar, volta ao raio + nome.
+    // Aba lateral ("puxador"): o C do logo (fechado) ou um ícone discreto (aberto). Se a imagem falhar, volta ao raio + nome.
     const logoBox = el('span', { class: 'tab-logo' });
-    logoBox.append(el('img', { src: logoUrl, alt: '', draggable: 'false', onerror: () => {
+    logoBox.append(el('img', { src: chrome.runtime.getURL('assets/c.png'), alt: '', draggable: 'false', onerror: () => {
       logoBox.replaceChildren(el('span', { html: icon('bolt'), style: 'display:contents' }), el('span', { class: 'label' }, 'CONTEXTO'));
       logoBox.classList.add('fallback');
     } }));
