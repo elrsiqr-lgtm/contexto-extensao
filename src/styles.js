@@ -209,6 +209,25 @@ input.due-edit { width: auto; padding: 4px 8px; border-radius: 12px; font-size: 
 .prompt .row { display: flex; gap: 8px; }
 .err { margin-top: 8px; font-size: 11.5px; color: var(--c-main); font-weight: 600; }
 
+/* ---------- abas (Principal | Notas salvas | Histórico) ---------- */
+.seg { display: flex; gap: 4px; padding: 4px; background: var(--c-light); border-radius: 999px; box-shadow: inset 0 2px 5px rgba(27,21,53,.10); flex: none; }
+.seg-btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 6px; border-radius: 999px; font-size: 11.5px; font-weight: 600; color: var(--c-dark); opacity: .72; white-space: nowrap; transition: background .15s, opacity .15s, box-shadow .15s; }
+.seg-btn:hover { opacity: 1; }
+.seg-btn.on { background: #fff; opacity: 1; color: var(--c-main); box-shadow: inset 0 1px 0 #fff, 0 4px 10px -4px rgba(27,21,53,.40); }
+.seg-btn .count { font-size: 10px; line-height: 1; padding: 3px 6px; border-radius: 999px; background: rgba(27,21,53,.14); color: var(--c-dark); }
+.seg-btn.on .count { background: var(--c-main); color: #fff; }
+.save-row { margin-top: 10px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.save-row .btn { padding: 7px 14px; }
+.note-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.note { background: linear-gradient(180deg, #FFFFFF 0%, var(--c-bg) 100%); border: 1px solid #EFE9FC; border-radius: 16px; padding: 12px; box-shadow: inset 0 1px 0 #fff, 0 4px 8px -4px rgba(27,21,53,.14); }
+.note-h { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.note-actions { margin-left: auto; display: flex; gap: 2px; }
+.note-txt { white-space: pre-wrap; word-break: break-word; font-size: 13px; line-height: 1.5; cursor: text; }
+.mini { width: 26px; height: 26px; border-radius: 50%; color: var(--c-mid); display: flex; align-items: center; justify-content: center; }
+.mini:hover { background: var(--c-light); color: var(--c-dark); }
+.mini svg { width: 14px; height: 14px; }
+textarea.edit-note { min-height: 90px; }
+
 /* ---------- grupo / trocar identificação ---------- */
 .or { text-align: center; font-size: 11px; color: var(--c-mid); margin: 14px 0 10px; }
 .hero-link { display: block; margin-top: 12px; font-size: 11px; color: var(--c-light); text-decoration: underline; opacity: .85; }

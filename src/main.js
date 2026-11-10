@@ -107,6 +107,7 @@
       stored.name = ident.name; // contato salvo ganhou/mudou de nome
       await storage.saveConversation(stored);
     }
+    M.ensureConversation(stored);
     if (M.pruneDone(stored) > 0) await storage.saveConversation(stored); // concluídas: só 7 dias
     conv = stored;
     display = { name: M.looksLikePhone(ident.name) && conv.name ? conv.name : ident.name };
@@ -153,6 +154,23 @@
       track('adicionar demanda', due ? `ok, prazo ${due}` : 'ok');
       return true;
     },
+    /** Guarda uma cópia datada das Notas importantes em "Notas salvas" (as Notas importantes continuam como estão). */
+    async onSaveNote() {
+      if (!conv) { ui.flash('Confirme o número do cliente antes de salvar.'); return false; }
+      await flushSummary(true);                       // garante que o que foi digitado já está nas notas
+      const text = (conv.summary.text || '').trim();
+      if (!text) { ui.flash('Escreva algo nas notas antes de salvar.'); return false; }
+      const notes = conv.savedNotes || [];
+      if (notes.length && notes[notes.length - 1].text === text) { ui.flash('Essa nota já está salva.'); return false; }
+      M.addSavedNote(conv, text);
+      await persist(); rerender();
+      track('salvar nota', 'ok');
+      ui.flash('Nota salva em “Notas salvas”');
+      return true;
+    },
+    async onEditSavedNote(id, text) { if (!conv) return; M.editSavedNote(conv, id, text); await persist(); rerender(); },
+    async onRemoveSavedNote(id) { if (!conv) return; M.removeSavedNote(conv, id); await persist(); rerender(); ui.flash('Nota excluída'); },
+
     async onClearHistory() {
       if (!conv) return;
       conv.history = [];
@@ -303,7 +321,7 @@
         const fresh = await storage.getConversation(conv.phone);
         // Só adota o que veio do armazenamento se for MAIS NOVO que o da tela. Sem isso, o "eco" do nosso
         // próprio salvamento anterior (mais antigo) trocava a conversa em memória e fazia a última alteração sumir.
-        if (fresh && fresh.updatedAt > conv.updatedAt && pendingSummary === null) { conv = fresh; rerender(false); }
+        if (fresh && fresh.updatedAt > conv.updatedAt && pendingSummary === null) { conv = M.ensureConversation(fresh); rerender(false); }
       } catch (e) { onError(e); }
     });
   }

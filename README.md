@@ -13,11 +13,12 @@ Funciona **somente** em `https://web.whatsapp.com`.
 - **Painel fixo à direita**, que empurra a conversa para o lado (não cobre nada, não é pop-up).
 - **Botão para abrir e fechar**: uma aba escura na borda direita da tela. O painel lembra se estava aberto ou fechado.
 - **Acompanha a conversa aberta**: ao trocar de cliente, o painel troca sozinho. O topo mostra nome e número.
-- **Notas importantes**: texto livre, salvo automaticamente enquanto você digita.
+- **Abas** logo abaixo do cartão do cliente: **Principal** (notas importantes e demandas), **Notas salvas** e **Histórico**. Ao abrir uma conversa, o painel sempre começa na aba Principal.
+- **Notas importantes**: texto livre, salvo automaticamente enquanto você digita. O botão **Salvar nota** guarda uma cópia datada na aba **Notas salvas** (as Notas importantes continuam como estão). Lá dá para editar (clique no texto), copiar e excluir cada nota.
 - **Demandas**: texto, prazo opcional e marcador de feita/pendente. O prazo se escolhe com atalhos (**Hoje**, **Amanhã**, **Em 7 dias**) ou em **Outra data** (campo de data visível). Clique no texto para editar e no prazo para alterá-lo; prazos vencidos ficam destacados.
 - **Demandas concluídas** ficam **7 dias** e depois são apagadas automaticamente. As pendentes, as notas e o histórico **não** expiram.
 - **Grupos**: grupo não tem número. Na tela de confirmação há a opção **Salvar como grupo**; o grupo passa a ser identificado pelo nome. O link **Trocar número ou grupo** (no topo do painel) desfaz a escolha.
-- **Histórico**: cada criação ou alteração guarda data e hora, para ver a evolução. Tem o botão **Limpar** (com confirmação), que apaga só o histórico.
+- **Histórico** (aba própria): cada criação ou alteração guarda data e hora, para ver a evolução. Tem o botão **Limpar** (com confirmação), que apaga só o histórico.
 - **Ordem ao abrir**: as notas e as demandas pendentes aparecem primeiro; concluídas e histórico ficam recolhidos.
 - **Backup**: botões **Exportar** e **Importar** no rodapé do painel (arquivo `.json`). A importação mescla com o que já existe e nunca apaga registros.
 

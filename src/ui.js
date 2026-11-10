@@ -24,6 +24,8 @@
     panel: '<rect x="3" y="4.5" width="18" height="15" rx="4"/><path d="M15 4.5v15"/>',
     chevron: '<path d="m6 9 6 6 6-6"/>',
     lock: '<rect x="5" y="11" width="14" height="9" rx="3"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+    bookmark: '<path d="M7 4h10a1 1 0 0 1 1 1v15l-6-4-6 4V5a1 1 0 0 1 1-1Z"/>',
+    copy: '<rect x="9" y="9" width="11" height="11" rx="3"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/>',
     note: '<rect x="4" y="3.5" width="16" height="17" rx="4"/><path d="M8 9h8M8 13h5"/>',
   };
   const icon = (n) => `<svg viewBox="0 0 24 24" aria-hidden="true">${P[n]}</svg>`;
@@ -66,6 +68,9 @@
     demand_done: 'Demanda concluída',
     demand_reopened: 'Demanda reaberta',
     demand_removed: 'Demanda removida',
+    note_saved: 'Nota salva',
+    note_edited: 'Nota salva alterada',
+    note_removed: 'Nota salva excluída',
   };
 
   // ---------------------------------------------------------------- montagem
@@ -276,7 +281,8 @@
     }
 
     let showDone = false;
-    let showHistory = false;
+    let activeTab = 'principal';   // 'principal' | 'notas' | 'historico'
+    let removingNote = null;       // id da nota salva aguardando confirmação de exclusão
     let toastTimer = null;
     let promptName = null;
     const suggestions = {}; // nome -> número sugerido (lido da ficha do contato)
@@ -285,7 +291,11 @@
       summaryMeta.textContent = conv.summary.updatedAt ? `Atualizado ${fmtStamp(conv.summary.updatedAt)}` : '';
       return el('section', { class: 'card' },
         el('div', { class: 'card-h' }, el('span', { html: icon('layers'), style: 'display:contents' }), el('h3', {}, 'Notas importantes'), summaryMeta),
-        summaryEl);
+        summaryEl,
+        el('div', { class: 'save-row' },
+          el('button', { class: 'btn ghost', type: 'button', onclick: () => h.onSaveNote() },
+            el('span', { html: icon('bookmark'), style: 'display:contents' }), 'Salvar nota'),
+          el('span', { class: 'meta' }, 'Guarda uma cópia em “Notas salvas”')));
     }
 
     function demandsCard(conv) {
@@ -327,16 +337,68 @@
       if (!items.length) {
         card.append(el('div', { class: 'empty' }, 'As alterações aparecem aqui, com data e hora.'));
       } else {
-        card.append(el('button', { class: `fold${showHistory ? ' open' : ''}`, style: 'margin-top:0', type: 'button', onclick: () => { showHistory = !showHistory; h.rerender(); } },
-          showHistory ? 'Ocultar' : 'Ver evolução', el('span', { html: icon('chevron'), style: 'display:contents' })));
-        if (showHistory) {
-          card.append(el('ul', { class: 'timeline', style: 'margin-top:14px' }, items.slice(0, 60).map((e) =>
-            el('li', { class: `tl t-${e.type}` },
-              el('div', { class: 'tl-h' }, el('span', { class: 'pill' }, HISTORY_LABEL[e.type] || e.type), el('span', { class: 'tl-t' }, fmtStamp(e.at))),
-              e.text ? el('div', { class: 'tl-x' }, e.text) : null))));
-        }
+        card.append(el('ul', { class: 'timeline', style: 'margin-top:6px' }, items.slice(0, 100).map((e) =>
+          el('li', { class: `tl t-${e.type}` },
+            el('div', { class: 'tl-h' }, el('span', { class: 'pill' }, HISTORY_LABEL[e.type] || e.type), el('span', { class: 'tl-t' }, fmtStamp(e.at))),
+            e.text ? el('div', { class: 'tl-x' }, e.text) : null))));
       }
       return card;
+    }
+
+    function savedNoteItem(n) {
+      const txt = el('div', { class: 'note-txt', title: 'Clique para editar' }, n.text);
+      txt.addEventListener('click', () => {
+        const ta = el('textarea', { class: 'edit-note', rows: 4 });
+        ta.value = n.text;
+        let finished = false;
+        const finish = (save) => {
+          if (finished) return; finished = true;
+          const v = ta.value.trim();
+          if (save && v && v !== n.text) h.onEditSavedNote(n.id, v); else ta.replaceWith(txt);
+        };
+        ta.addEventListener('keydown', (e) => { if (e.key === 'Escape') finish(false); if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) finish(true); });
+        ta.addEventListener('blur', () => finish(true));
+        txt.replaceWith(ta); ta.focus();
+      });
+      const edited = n.updatedAt !== n.createdAt ? ` · editada ${fmtStamp(n.updatedAt)}` : '';
+      const li = el('li', { class: 'note' },
+        el('div', { class: 'note-h' },
+          el('span', { class: 'stamp' }, `Salva ${fmtStamp(n.createdAt)}${edited}`),
+          el('span', { class: 'note-actions' },
+            el('button', { class: 'mini', type: 'button', title: 'Copiar', 'aria-label': 'Copiar nota', html: icon('copy'),
+              onclick: async () => { try { await navigator.clipboard.writeText(n.text); api.flash('Nota copiada'); } catch (_) { api.flash('Não foi possível copiar'); } } }),
+            el('button', { class: 'mini', type: 'button', title: 'Excluir', 'aria-label': 'Excluir nota', html: icon('x'),
+              onclick: () => { removingNote = n.id; h.rerender(); } }))),
+        txt);
+      if (removingNote === n.id) {
+        li.append(el('div', { class: 'confirm', style: 'margin:10px 0 0' },
+          el('p', {}, 'Excluir esta nota salva?'),
+          el('div', { class: 'row' },
+            el('button', { class: 'btn', type: 'button', onclick: () => { removingNote = null; h.onRemoveSavedNote(n.id); } }, 'Sim, excluir'),
+            el('button', { class: 'btn ghost', type: 'button', onclick: () => { removingNote = null; h.rerender(); } }, 'Cancelar'))));
+      }
+      return li;
+    }
+
+    function savedNotesCard(conv) {
+      const notes = [...(conv.savedNotes || [])].reverse();
+      const card = el('section', { class: 'card' },
+        el('div', { class: 'card-h' }, el('span', { html: icon('bookmark'), style: 'display:contents' }), el('h3', {}, 'Notas salvas'),
+          el('span', { class: 'meta' }, `${notes.length} nota${notes.length === 1 ? '' : 's'}`)));
+      if (!notes.length) {
+        card.append(el('div', { class: 'empty' }, 'Escreva em “Notas importantes” (aba Principal) e clique em “Salvar nota” para guardar uma cópia datada aqui.'));
+      } else {
+        card.append(el('ul', { class: 'note-list' }, notes.map(savedNoteItem)));
+      }
+      return card;
+    }
+
+    function tabsBar(conv) {
+      const defs = [['principal', 'Principal', 0], ['notas', 'Notas salvas', (conv.savedNotes || []).length], ['historico', 'Histórico', conv.history.length]];
+      return el('div', { class: 'seg', role: 'tablist', 'aria-label': 'Seções do painel' }, defs.map(([id, label, count]) =>
+        el('button', { class: `seg-btn${activeTab === id ? ' on' : ''}`, type: 'button', role: 'tab', 'aria-selected': String(activeTab === id),
+          onclick: () => { if (activeTab !== id) { activeTab = id; h.rerender(); } } },
+          label, count ? el('span', { class: 'count' }, String(count)) : null)));
     }
 
     // ------------------------------------------------------------ API pública
@@ -439,10 +501,12 @@
        * (aí o texto do resumo é trocado mesmo com o campo em foco).
        */
       showConversation(conv, display, resetSummary) {
-        if (resetSummary) confirmClear = false;
+        if (resetSummary) { confirmClear = false; activeTab = 'principal'; removingNote = null; }   // ao abrir uma conversa: sempre a aba Principal
         if (resetSummary || summaryEl.getRootNode().activeElement !== summaryEl) summaryEl.value = conv.summary.text;
-        // ordem: topo -> notas -> demandas pendentes -> histórico
-        scroll.replaceChildren(heroClient(display.name, conv.phone, { editable: !M.looksLikePhone(display.name) }), summaryCard(conv), demandsCard(conv), historyCard(conv));
+        const content = activeTab === 'notas' ? [savedNotesCard(conv)]
+          : activeTab === 'historico' ? [historyCard(conv)]
+          : [summaryCard(conv), demandsCard(conv)];                 // Principal: notas + demandas pendentes
+        scroll.replaceChildren(heroClient(display.name, conv.phone, { editable: !M.looksLikePhone(display.name) }), tabsBar(conv), ...content);
       },
 
       resetAddForm() { demandInput.value = ''; otherOpen = false; setDue(null); showHint(''); },
