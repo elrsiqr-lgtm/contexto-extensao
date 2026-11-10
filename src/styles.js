@@ -29,18 +29,26 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round
 :host { position: fixed; top: 0; right: 0; width: 0; height: 0; z-index: 2147483647; }
 .tab {
   position: fixed; top: 50%; right: 0; transform: translateY(-50%);
-  min-width: 30px; padding: 12px 0; border-radius: 14px 0 0 14px;
-  background: var(--c-dark); color: #fff; opacity: .92;
-  display: flex; flex-direction: column; align-items: center; gap: 10px;
-  box-shadow: 0 4px 18px rgba(27,21,53,.25);
-  transition: opacity .15s, right .2s;
+  padding: 10px 5px 10px 8px; border-radius: 18px 0 0 18px;
+  background: linear-gradient(90deg, #FFFFFF 0%, #F4EFFF 100%);
+  border: 1px solid #E3D9FA; border-right: 0;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: inset 0 1px 0 #fff, -4px 6px 18px rgba(27,21,53,.22);
+  transition: transform .15s ease, right .2s ease, box-shadow .15s ease;
 }
-.tab:hover { opacity: 1; background: var(--c-main); }
-.tab svg { width: 16px; height: 16px; }
+.tab:hover { transform: translateY(-50%) translateX(-2px); box-shadow: inset 0 1px 0 #fff, -6px 8px 22px rgba(123,47,224,.30); }
+/* puxador: o C do logo */
+.tab-logo { position: relative; display: block; width: 34px; height: 34px; }
+.tab-logo img { display: block; width: 100%; height: 100%; object-fit: contain; pointer-events: none; user-select: none; }
+.tab-logo.fallback { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 28px; height: auto; padding: 4px 0; color: var(--c-dark); }
+.tab-logo.fallback svg { width: 16px; height: 16px; }
 .tab .label { writing-mode: vertical-rl; font-size: 10.5px; font-weight: 700; letter-spacing: .18em; }
-:host(.open) .tab { right: var(--w); opacity: .6; padding: 10px 0; }
-:host(.open) .tab .label { display: none; }
-:host(.open) .tab:hover { opacity: 1; }
+.tab-ico { display: none; color: var(--c-dark); padding: 4px 3px; }
+.tab-ico svg { width: 16px; height: 16px; }
+/* painel aberto: a aba fica na borda do painel, só com um ícone discreto */
+:host(.open) .tab { right: var(--w); padding: 8px 4px; }
+:host(.open) .tab-logo { display: none; }
+:host(.open) .tab-ico { display: block; }
 
 /* ---------- painel ---------- */
 .panel {
@@ -54,10 +62,10 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round
   /* A barra de rolagem (6 px) fica SEMPRE reservada à direita; por isso o recuo da direita é 6 px menor,
      e as margens ficam iguais (14 px) dos dois lados, com ou sem barra. */
   scrollbar-gutter: stable;
-  padding: 14px 8px 16px 14px;
+  padding: 10px 8px 16px 14px;
   /* O conteúdo some suavemente nas bordas de cima e de baixo (em vez de ser cortado seco). */
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 16px), transparent 100%);
-  mask-image: linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 16px), transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 10px, #000 calc(100% - 16px), transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 10px, #000 calc(100% - 16px), transparent 100%);
 }
 .scroll::-webkit-scrollbar { width: 6px; }
 .scroll::-webkit-scrollbar-track { background: transparent; }
@@ -66,23 +74,27 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round
 /* ---------- topo ---------- */
 .hero {
   background: linear-gradient(155deg, #2D2257 0%, #1B1535 55%, #140E29 100%);
-  color: #fff; border-radius: 24px; padding: 14px 18px 18px;
+  color: #fff; border-radius: 24px; padding: 18px 18px 18px;
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,.16),
     inset 0 -3px 0 rgba(0,0,0,.28),
     0 6px 12px rgba(27,21,53,.28),
     0 22px 38px -12px rgba(27,21,53,.60);
 }
-.brand { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; letter-spacing: .18em; color: var(--c-light); }
-.brand svg { width: 16px; height: 16px; color: var(--c-mid); }
-.brand .grow { flex: 1; }
+.brandbar { flex: none; display: flex; align-items: center; padding: 8px 14px 0 14px; }
+.brandbar .grow { flex: 1; }
+.brand-mark { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; letter-spacing: .18em; color: var(--c-dark); }
+.brand-mark svg { width: 16px; height: 16px; color: var(--c-main); }
+.brand-logo { height: 54px; width: auto; user-select: none; -webkit-user-drag: none; }
 .icon-btn { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--c-light); }
 .icon-btn:hover { background: rgba(255,255,255,.12); }
+.brandbar .icon-btn { color: var(--c-mid); }
+.brandbar .icon-btn:hover { background: var(--c-light); color: var(--c-dark); }
 .icon-btn svg { width: 16px; height: 16px; }
-.client { margin-top: 14px; font-size: 19px; font-weight: 600; line-height: 1.25; word-break: break-word; }
+.client { margin-top: 0; font-size: 19px; font-weight: 600; line-height: 1.25; word-break: break-word; }
 .phone { margin-top: 4px; font-size: 12.5px; color: var(--c-light); letter-spacing: .02em; }
 .hero .pill { margin-top: 12px; }
-.hero-empty { font-size: 13px; line-height: 1.6; color: var(--c-light); margin-top: 12px; }
+.hero-empty { font-size: 13px; line-height: 1.6; color: var(--c-light); margin-top: 0; }
 
 /* ---------- cartões ---------- */
 .card {
@@ -228,7 +240,7 @@ input.due-edit { width: auto; padding: 4px 8px; border-radius: 12px; font-size: 
 .foot .link { display: inline-flex; align-items: center; gap: 5px; font-weight: 600; }
 .foot svg { width: 14px; height: 14px; }
 .foot .grow { flex: 1; }
-.logo { width: 24px; height: 24px; object-fit: contain; opacity: .92; user-select: none; -webkit-user-drag: none; margin-right: -6px; }
+.logo { width: 38px; height: 38px; object-fit: contain; user-select: none; -webkit-user-drag: none; margin-right: -4px; }
 .ver { font-size: 10.5px; color: var(--c-mid); border-radius: 999px; padding: 2px 6px; }
 .ver:hover { background: var(--c-light); color: var(--c-dark); }
 .toast { position: absolute; left: 14px; right: 14px; bottom: calc(100% + 8px); background: var(--c-dark); color: #fff; font-size: 11.5px; line-height: 1.4; font-weight: 600; padding: 9px 14px; border-radius: 14px; box-shadow: 0 6px 24px rgba(27,21,53,.25); }

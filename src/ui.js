@@ -184,36 +184,51 @@
     const fileInput = el('input', { type: 'file', accept: '.json,application/json', style: 'display:none' });
     fileInput.addEventListener('change', () => { if (fileInput.files[0]) h.onImport(fileInput.files[0]); fileInput.value = ''; });
 
+    const logoUrl = chrome.runtime.getURL('assets/logo.png');
     const foot = el('div', { class: 'foot' },
       btn('link', 'download', 'Exportar', () => h.onExport(), 'Exportar backup de todos os registros'),
       btn('link', 'upload', 'Importar', () => fileInput.click(), 'Importar backup'),
       el('span', { class: 'grow' }), toast,
       // Marca do autor (discreta). Se a imagem não carregar, ela some sem deixar espaço.
-      el('img', { class: 'logo', src: chrome.runtime.getURL('assets/logo.png'), alt: 'Marca do autor', title: 'CONTEXTO',
-        draggable: 'false', onerror: (e) => e.target.remove() }),
+      el('img', { class: 'logo', src: chrome.runtime.getURL('assets/autor.png'), alt: 'Marca do autor', title: 'Marca do autor', draggable: 'false', onerror: (e) => e.target.remove() }),
       el('button', { class: 'ver', type: 'button', title: 'Copiar informações para suporte (só textos do cabeçalho da conversa)', onclick: () => h.onDiagnostic() },
         `v${chrome.runtime.getManifest().version}`),
       fileInput);
 
-    const panel = el('aside', { class: 'panel', 'aria-label': 'CONTEXTO' }, scroll, foot);
+    // Barra do topo (fora dos cartões): logo CONTEXTO à esquerda e botão de fechar à direita.
+    // Se a imagem do logo falhar, volta ao raio + nome em texto.
+    const brandMark = () => {
+      const box = el('span', { class: 'brand-mark' });
+      box.append(el('img', { class: 'brand-logo', src: logoUrl, alt: 'CONTEXTO', draggable: 'false', onerror: () => {
+        box.replaceChildren(el('span', { html: icon('bolt'), style: 'display:contents' }), 'CONTEXTO');
+      } }));
+      return box;
+    };
+    const brandBar = el('div', { class: 'brandbar' },
+      brandMark(), el('span', { class: 'grow' }),
+      btn('icon-btn', 'x', '', () => h.onToggle(), 'Fechar painel'));
+
+    const panel = el('aside', { class: 'panel', 'aria-label': 'CONTEXTO' }, brandBar, scroll, foot);
+    // Aba lateral ("puxador"): o C do logo (fechado) ou um ícone discreto (aberto). Se a imagem falhar, volta ao raio + nome.
+    const logoBox = el('span', { class: 'tab-logo' });
+    logoBox.append(el('img', { src: chrome.runtime.getURL('assets/c.png'), alt: '', draggable: 'false', onerror: () => {
+      logoBox.replaceChildren(el('span', { html: icon('bolt'), style: 'display:contents' }), el('span', { class: 'label' }, 'CONTEXTO'));
+      logoBox.classList.add('fallback');
+    } }));
     const tab = el('button', { class: 'tab', type: 'button', title: 'Abrir/fechar CONTEXTO', 'aria-label': 'Abrir ou fechar CONTEXTO', onclick: () => h.onToggle() },
-      el('span', { html: icon('bolt'), style: 'display:contents' }), el('span', { class: 'label' }, 'CONTEXTO'));
+      logoBox, el('span', { class: 'tab-ico', html: icon('panel') }));
     root.append(tab, panel);
 
     // ------------------------------------------------------------ pedaços
-    const brandRow = () => el('div', { class: 'brand' },
-      el('span', { html: icon('bolt'), style: 'display:contents' }), 'CONTEXTO', el('span', { class: 'grow' }),
-      btn('icon-btn', 'x', '', () => h.onToggle(), 'Fechar painel'));
-
     function heroEmpty() {
-      return el('div', { class: 'hero' }, brandRow(),
+      return el('div', { class: 'hero' },
         el('div', { class: 'hero-empty' }, 'Abra uma conversa no WhatsApp para ver e registrar o que foi combinado com o cliente.'));
     }
 
     function heroClient(name, phone, opts = {}) {
       const unsaved = M.looksLikePhone(name); // contato não salvo: o "nome" já é o número
       const group = M.isGroup(phone);
-      return el('div', { class: 'hero' }, brandRow(),
+      return el('div', { class: 'hero' },
         el('div', { class: 'client' }, unsaved ? M.formatPhone(phone) || name : name || 'Cliente'),
         el('div', { class: 'phone' }, group ? 'Grupo' : unsaved ? 'Contato não salvo' : phone ? M.formatPhone(phone) : 'Número não confirmado'),
         phone ? el('span', { class: 'pill ok' }, 'ativo') : el('span', { class: 'pill' }, 'Aguardando número'),
@@ -341,7 +356,7 @@
       /** A extensão foi atualizada/recarregada: esta página precisa ser recarregada. */
       showStale() {
         scroll.replaceChildren(
-          el('div', { class: 'hero' }, brandRow(),
+          el('div', { class: 'hero' },
             el('div', { class: 'client' }, 'CONTEXTO foi atualizado'),
             el('div', { class: 'phone' }, 'Esta página ainda está com a versão antiga.')),
           el('section', { class: 'card prompt' },
@@ -352,7 +367,7 @@
       /** Conversa abrindo: mostra esqueleto em vez de "número não confirmado". */
       showLoading(name) {
         scroll.replaceChildren(
-          el('div', { class: 'hero' }, brandRow(),
+          el('div', { class: 'hero' },
             el('div', { class: 'client' }, name || 'Carregando conversa…'),
             el('div', { class: 'phone' }, name ? 'Identificando cliente…' : 'Aguarde um instante')),
           el('section', { class: 'card' },
@@ -373,7 +388,7 @@
 
       showLoadError() {
         scroll.replaceChildren(
-          el('div', { class: 'hero' }, brandRow(),
+          el('div', { class: 'hero' },
             el('div', { class: 'client' }, 'Não consegui abrir esta conversa'),
             el('div', { class: 'phone' }, 'Suas anotações estão guardadas.')),
           el('section', { class: 'card prompt' },

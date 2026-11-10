@@ -1,4 +1,4 @@
-<p align="center"><img src="assets/logo.png" alt="Marca do autor" width="120"></p>
+<p align="center"><img src="assets/logo.png" alt="CONTEXTO" width="220"></p>
 
 # CONTEXTO
 
@@ -61,8 +61,8 @@ Seus dados não são perdidos ao atualizar. Mesmo assim, é boa prática exporta
 ```
 manifest.json        Configuração da extensão (Manifest V3)
 fonts/               Fonte Sora (embutida)
-assets/              Logo do autor (assets/logo.png, usado no rodapé do painel e neste README)
-icons/               Ícones da extensão
+assets/              logo.png = logo do CONTEXTO (topo do painel e este README); c.png = o "C" do puxador (aba lateral); autor.png = marca do autor (rodapé do painel)
+icons/               Ícones da extensão (o "C" em 16, 48 e 128 px)
 src/
   storage.js         ÚNICO lugar que sabe onde os dados ficam
   detector.js        ÚNICO lugar que lê a página do WhatsApp
@@ -112,3 +112,7 @@ Fonte: **Sora**. Ícones de traço fino, cartões arredondados e etiquetas em p�
   }
 }
 ```
+
+---
+
+<p align="center"><img src="assets/autor.png" alt="Marca do autor" width="72"><br><sub>Marca do autor</sub></p>
