@@ -85,7 +85,16 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round
 .brandbar .grow { flex: 1; }
 .brand-mark { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; letter-spacing: .18em; color: var(--c-dark); }
 .brand-mark svg { width: 16px; height: 16px; color: var(--c-main); }
-.brand-logo { height: 46px; width: auto; max-width: none; user-select: none; -webkit-user-drag: none; }
+.brand-logo { display: inline-flex; align-items: center; gap: 7px; height: 46px; user-select: none; }
+.brand-logo.flat { display: block; width: auto; max-width: none; -webkit-user-drag: none; }
+.brand-logo img { display: block; height: 100%; width: auto; -webkit-user-drag: none; }
+/* isotipo: 3 camadas empilhadas; ao passar o mouse elas se abrem (a de cima sobe, a de baixo desce) e voltam */
+.iso { position: relative; height: 100%; aspect-ratio: 262 / 256; }
+.iso img { position: absolute; inset: 0; width: 100%; height: 100%; transition: transform .5s cubic-bezier(.2, 1.5, .4, 1); }
+.brand-mark:hover .iso-top { transform: translateY(-3px); }
+.brand-mark:hover .iso-bot { transform: translateY(3px); transition-delay: .06s; }
+.brand-mark:hover .iso-mid { transform: scale(1.04); transition-delay: .03s; }
+@media (prefers-reduced-motion: reduce) { .iso img { transition: none; } .brand-mark:hover .iso img { transform: none; } }
 .icon-btn { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--c-light); }
 .icon-btn:hover { background: rgba(255,255,255,.12); }
 .brandbar .icon-btn { color: var(--c-mid); margin-top: 8px; }

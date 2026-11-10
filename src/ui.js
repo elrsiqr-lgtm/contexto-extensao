@@ -204,9 +204,20 @@
     // Se a imagem do logo falhar, volta ao raio + nome em texto.
     const brandMark = () => {
       const box = el('span', { class: 'brand-mark' });
-      box.append(el('img', { class: 'brand-logo', src: logoUrl, alt: 'CONTEXTO', draggable: 'false', onerror: () => {
-        box.replaceChildren(el('span', { html: icon('bolt'), style: 'display:contents' }), 'CONTEXTO');
-      } }));
+      const asset = (f) => chrome.runtime.getURL('assets/' + f);
+      // Isotipo (as 3 camadas) separado do texto: ao passar o mouse, as camadas se abrem e voltam (ver .iso no CSS).
+      const layer = (k) => el('img', { class: 'iso-' + k, src: asset(`iso-${k}.png`), alt: '', draggable: 'false' });
+      const failed = () => {
+        // se alguma imagem falhar, usa o logo inteiro; se ele também falhar, volta ao raio + nome
+        box.replaceChildren(el('img', { class: 'brand-logo flat', src: logoUrl, alt: 'CONTEXTO', draggable: 'false', onerror: () => {
+          box.replaceChildren(el('span', { html: icon('bolt'), style: 'display:contents' }), 'CONTEXTO');
+        } }));
+      };
+      const logo = el('span', { class: 'brand-logo', role: 'img', 'aria-label': 'CONTEXTO' },
+        el('span', { class: 'iso' }, layer('bot'), layer('mid'), layer('top')),
+        el('img', { class: 'brand-word', src: asset('wordmark.png'), alt: '', draggable: 'false' }));
+      logo.querySelectorAll('img').forEach((i) => i.addEventListener('error', failed, { once: true }));
+      box.append(logo);
       return box;
     };
     const brandBar = el('div', { class: 'brandbar' },
