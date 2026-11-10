@@ -27,36 +27,61 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round
 /* ---------- aba para abrir/fechar ---------- */
 /* O host fica acima de TUDO no WhatsApp, para o botão nunca ser coberto. */
 :host { position: fixed; top: 0; right: 0; width: 0; height: 0; z-index: 2147483647; }
+/* A aba e o painel usam a mesma curva e a mesma duração: parecem um movimento só. */
 .tab {
+  --ease: cubic-bezier(.22, .9, .3, 1);
   position: fixed; top: 50%; right: 0; transform: translateY(-50%);
-  padding: 10px 5px 10px 8px; border-radius: 18px 0 0 18px;
-  background: linear-gradient(90deg, #FFFFFF 0%, #F4EFFF 100%);
-  border: 1px solid #E3D9FA; border-right: 0;
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: inset 0 1px 0 #fff, -4px 6px 18px rgba(27,21,53,.22);
-  transition: transform .15s ease, right .2s ease, box-shadow .15s ease;
+  width: 48px; height: 76px; padding: 0; overflow: hidden; display: block;
+  border-radius: 20px 0 0 20px;
+  background: linear-gradient(160deg, #FFFFFF 0%, #F1EAFF 100%);
+  border: 1px solid #E0D4FA; border-right: 0;
+  box-shadow: inset 0 1px 0 #fff, -6px 8px 22px rgba(27,21,53,.20), -1px 2px 0 rgba(123,47,224,.10);
 }
-.tab:hover { transform: translateY(-50%) translateX(-2px); box-shadow: inset 0 1px 0 #fff, -6px 8px 22px rgba(123,47,224,.30); }
-/* puxador: o C do logo (mais alto que largo) */
-.tab-logo { position: relative; display: block; width: 26px; height: 38px; }
-.tab-logo img { display: block; width: 100%; height: 100%; object-fit: contain; pointer-events: none; user-select: none; }
+:host(.ready) .tab { transition: right .34s var(--ease), width .3s var(--ease), height .3s var(--ease), border-radius .3s var(--ease), transform .25s var(--ease), box-shadow .25s ease, background .25s ease; }
+.tab.fb { height: 124px; }
+.tab:hover { transform: translateY(-50%) translateX(-3px); box-shadow: inset 0 1px 0 #fff, -8px 10px 26px rgba(123,47,224,.32), -1px 2px 0 rgba(123,47,224,.14); }
+.tab:focus-visible { outline: 2px solid var(--c-main); outline-offset: 2px; }
+.tab-closed, .tab-ico { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+.tab-closed { flex-direction: column; gap: 6px; padding: 0 3px 0 6px; }
+.tab-ico { color: #fff; opacity: 0; transform: translateX(-5px); pointer-events: none; }
+:host(.ready) .tab-closed { transition: opacity .2s ease .1s, transform .3s var(--ease) .06s; }
+:host(.ready) .tab-ico { transition: opacity .2s ease .12s, transform .3s var(--ease) .1s; }
+.tab-ico svg { width: 15px; height: 15px; stroke-width: 2.2; }
+/* puxador fechado: o isotipo (camadas) + setinha */
+.tab-logo { position: relative; display: block; width: 32px; height: 31px; flex: none; }
+.tab-logo .iso { height: 100%; width: 100%; aspect-ratio: auto; }
+.tab-logo img { pointer-events: none; user-select: none; }
+.tab:hover .iso-top { transform: translateY(-2.5px); }
+.tab:hover .iso-bot { transform: translateY(2.5px); transition-delay: .06s; }
+.tab:hover .iso-mid { transform: scale(1.05); transition-delay: .03s; }
 .tab-logo.fallback { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 28px; height: auto; padding: 4px 0; color: var(--c-dark); }
 .tab-logo.fallback svg { width: 16px; height: 16px; }
 .tab .label { writing-mode: vertical-rl; font-size: 10.5px; font-weight: 700; letter-spacing: .18em; }
-.tab-ico { display: none; color: var(--c-dark); padding: 4px 3px; }
-.tab-ico svg { width: 16px; height: 16px; }
-/* painel aberto: a aba fica na borda do painel, só com um ícone discreto */
-:host(.open) .tab { right: var(--w); padding: 8px 4px; }
-:host(.open) .tab-logo { display: none; }
-:host(.open) .tab-ico { display: block; }
+.tab-arrow { display: block; color: var(--c-main); transition: transform .2s ease; }
+.tab-arrow svg { width: 14px; height: 14px; stroke-width: 2; }
+.tab:hover .tab-arrow { transform: translateX(-2px); }
+/* painel aberto: a aba fica na borda do painel, fina, só com uma seta para recolher */
+:host(.open) .tab {
+  right: var(--w); width: 22px; height: 64px; border: 0; border-radius: 14px 0 0 14px;
+  background: linear-gradient(180deg, #3A2470 0%, var(--c-dark) 100%);
+  box-shadow: -4px 6px 16px rgba(27,21,53,.28), inset 1px 0 0 rgba(255,255,255,.10);
+}
+:host(.open) .tab:hover { width: 27px; transform: translateY(-50%); background: linear-gradient(180deg, var(--c-main) 0%, #4F2AA8 100%); box-shadow: -6px 8px 20px rgba(123,47,224,.38), inset 1px 0 0 rgba(255,255,255,.18); }
+:host(.open) .tab-closed { opacity: 0; transform: scale(.8); pointer-events: none; }
+:host(.open) .tab-ico { opacity: 1; transform: none; }
+:host(.open) .tab:hover .tab-ico { transform: translateX(1px); }
 
 /* ---------- painel ---------- */
 .panel {
   position: fixed; top: 0; right: 0; bottom: 0; width: var(--w);
   background: var(--c-bg); border-left: 1px solid var(--c-light);
-  display: none; flex-direction: column; z-index: 1;
+  display: flex; flex-direction: column; z-index: 1;
+  /* fechado: fora da tela e invisível (sem foco por teclado) */
+  transform: translateX(100%); opacity: 0; visibility: hidden;
 }
-:host(.open) .panel { display: flex; }
+:host(.ready) .panel { transition: transform .34s cubic-bezier(.22, .9, .3, 1), opacity .2s ease .12s, visibility 0s linear .34s; }
+:host(.open) .panel { transform: none; opacity: 1; visibility: visible; box-shadow: -10px 0 32px rgba(27,21,53,.10); }
+:host(.ready.open) .panel { transition: transform .34s cubic-bezier(.22, .9, .3, 1), opacity .22s ease, visibility 0s; }
 .scroll {
   flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px;
   /* A barra de rolagem (6 px) fica SEMPRE reservada à direita; por isso o recuo da direita é 6 px menor,
@@ -81,14 +106,23 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round
     0 6px 12px rgba(27,21,53,.28),
     0 22px 38px -12px rgba(27,21,53,.60);
 }
-.brandbar { flex: none; display: flex; align-items: flex-start; padding: 6px 14px 0 12px; }
+.brandbar { flex: none; display: flex; align-items: flex-start; padding: 16px 14px 0 12px; }
 .brandbar .grow { flex: 1; }
 .brand-mark { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; letter-spacing: .18em; color: var(--c-dark); }
 .brand-mark svg { width: 16px; height: 16px; color: var(--c-main); }
-.brand-logo { height: 80px; width: auto; max-width: none; user-select: none; -webkit-user-drag: none; }
+.brand-logo { display: inline-flex; align-items: center; gap: 8px; height: 56px; user-select: none; }
+.brand-logo.flat { display: block; width: auto; max-width: none; -webkit-user-drag: none; }
+.brand-logo img { display: block; height: 100%; width: auto; -webkit-user-drag: none; }
+/* isotipo: 3 camadas empilhadas; ao passar o mouse elas se abrem (a de cima sobe, a de baixo desce) e voltam */
+.iso { display: block; position: relative; height: 100%; aspect-ratio: 262 / 256; }
+.iso img { position: absolute; inset: 0; width: 100%; height: 100%; transition: transform .5s cubic-bezier(.2, 1.5, .4, 1); }
+.brand-mark:hover .iso-top { transform: translateY(-3px); }
+.brand-mark:hover .iso-bot { transform: translateY(3px); transition-delay: .06s; }
+.brand-mark:hover .iso-mid { transform: scale(1.04); transition-delay: .03s; }
+@media (prefers-reduced-motion: reduce) { .iso img { transition: none; } .brand-mark:hover .iso img, .tab:hover .iso img { transform: none; } .tab, .tab-arrow, .tab-closed, .tab-ico { transition: none !important; } .tab:hover { transform: translateY(-50%); } .panel { transition: none !important; } }
 .icon-btn { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--c-light); }
 .icon-btn:hover { background: rgba(255,255,255,.12); }
-.brandbar .icon-btn { color: var(--c-mid); margin-top: 8px; }
+.brandbar .icon-btn { color: var(--c-mid); margin-top: 10px; }
 .brandbar .icon-btn:hover { background: var(--c-light); color: var(--c-dark); }
 .icon-btn svg { width: 16px; height: 16px; }
 .client { margin-top: 0; font-size: 19px; font-weight: 600; line-height: 1.25; word-break: break-word; }
@@ -259,31 +293,6 @@ textarea.edit-note { min-height: 90px; }
 .foot .link { display: inline-flex; align-items: center; gap: 5px; font-weight: 600; }
 .foot svg { width: 14px; height: 14px; }
 .foot .grow { flex: 1; }
-/* caixinha do autor: fechada por padrão; ao clicar, a figura pula para fora */
-.mark { position: relative; flex: none; width: 38px; height: 38px; margin-right: -4px; border-radius: 10px; }
-.mark:focus-visible { outline: 2px solid var(--c-main); outline-offset: 2px; }
-.mark-closed, .mark-open { position: absolute; inset: 0; width: 100%; height: 100%; user-select: none; -webkit-user-drag: none; }
-.mark-closed svg { display: block; width: 100%; height: 100%; }
-.mark-closed { transform-origin: 50% 90%; transition: opacity .16s ease; }
-.mark:not(.open):hover .mark-closed { animation: mark-wiggle .55s ease; }
-.mark-open { opacity: 0; transform-origin: 50% 88%; transition: opacity .16s ease; pointer-events: none; }
-/* aberta: a figura dá um pulinho para fora e ASSENTA no mesmo tamanho da caixa fechada (sem crescer) */
-.mark.open .mark-open { opacity: 1; animation: mark-pop .6s cubic-bezier(.2, 1.3, .4, 1) both; }
-.mark.open .mark-closed { opacity: 0; }
-@keyframes mark-pop { 0% { opacity: 0; transform: translateY(12px) scale(.6); } 35% { opacity: 1; } 60% { transform: translateY(-8px) scale(1.12); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
-@keyframes mark-wiggle { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-7deg); } 60% { transform: rotate(6deg); } 85% { transform: rotate(-3deg); } }
-.spark { position: absolute; left: 50%; top: 38%; width: 8px; height: 8px; background: var(--c-mid); opacity: 0; pointer-events: none; clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); }
-.mark.open .spark.s1 { animation: spark-a .8s ease-out; }
-.mark.open .spark.s2 { animation: spark-b .8s .06s ease-out; background: var(--c-main); }
-.mark.open .spark.s3 { animation: spark-c .8s .12s ease-out; }
-@keyframes spark-a { 0% { opacity: 1; transform: translate(-50%, 0) scale(.3); } 100% { opacity: 0; transform: translate(-26px, -22px) scale(1.1); } }
-@keyframes spark-b { 0% { opacity: 1; transform: translate(-50%, 0) scale(.3); } 100% { opacity: 0; transform: translate(10px, -30px) scale(1.2); } }
-@keyframes spark-c { 0% { opacity: 1; transform: translate(-50%, 0) scale(.3); } 100% { opacity: 0; transform: translate(22px, -16px) scale(.9); } }
-/* quem prefere menos movimento: a caixa abre e fecha na hora, sem pulinho nem faíscas (vem DEPOIS das regras acima) */
-@media (prefers-reduced-motion: reduce) {
-  .mark-closed, .mark-open { transition: none; }
-  .mark:not(.open):hover .mark-closed, .mark.open .spark.s1, .mark.open .spark.s2, .mark.open .spark.s3, .mark.open .mark-open { animation: none; }
-}
 .ver { font-size: 10.5px; color: var(--c-mid); border-radius: 999px; padding: 2px 6px; }
 .ver:hover { background: var(--c-light); color: var(--c-dark); }
 .toast { position: absolute; left: 14px; right: 14px; bottom: calc(100% + 8px); background: var(--c-dark); color: #fff; font-size: 11.5px; line-height: 1.4; font-weight: 600; padding: 9px 14px; border-radius: 14px; box-shadow: 0 6px 24px rgba(27,21,53,.25); }

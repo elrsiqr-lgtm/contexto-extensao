@@ -129,7 +129,7 @@ h1, h2, h3, p { margin: 0; }
 
 /* ---------- vazio / importação ---------- */
 .welcome { text-align: center; padding: 44px 28px; }
-.welcome img { height: 120px; width: auto; margin: 0 auto 8px; display: block; }
+.welcome img { height: 84px; max-width: 100%; width: auto; margin: 0 auto 8px; display: block; }
 .welcome h1 { font-size: 22px; font-weight: 600; margin-top: 6px; }
 .welcome p { color: #5b5378; max-width: 520px; margin: 10px auto 0; font-size: 13.5px; }
 .welcome .steps { text-align: left; max-width: 460px; margin: 18px auto 0; padding: 0; list-style: none; counter-reset: s; display: flex; flex-direction: column; gap: 8px; }

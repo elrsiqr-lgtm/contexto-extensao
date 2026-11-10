@@ -82,10 +82,14 @@
 
     // 2) CSS que empurra a página do WhatsApp para a esquerda (nada fica coberto)
     document.head.append(el('style', { id: 'contexto-layout' }, `
-      html.contexto-open #app { width: calc(100vw - 360px) !important; max-width: calc(100vw - 360px) !important; }
+      html.contexto-open #app { width: calc(100vw - 360px) !important; max-width: none !important; }
       html.contexto-open body { overflow: hidden; }
+      /* a página acompanha o painel com a MESMA curva (só liga depois da 1ª pintura, para não animar ao carregar) */
+      html.contexto-ready #app { transition: width .34s cubic-bezier(.22, .9, .3, 1); }
+      @media (prefers-reduced-motion: reduce) { html.contexto-ready #app { transition: none; } }
     `));
 
+    let resizeTimer = null;
     const host = el('div', { id: 'contexto-root' });
     const root = host.attachShadow({ mode: 'open' });
     root.append(el('style', {}, NS.panelCss));
@@ -190,30 +194,12 @@
     fileInput.addEventListener('change', () => { if (fileInput.files[0]) h.onImport(fileInput.files[0]); fileInput.value = ''; });
 
     const logoUrl = chrome.runtime.getURL('assets/logo.png');
-    // Marca do autor: uma caixinha FECHADA. Ao clicar, a figura "sai" da caixa (pulinho e faíscas) e depois de
-    // alguns segundos a caixa se fecha sozinha. A caixa fechada e a aberta têm o MESMO tamanho e a mesma base
-    // (mesma grade 160x160): só a tampa e a figura mudam. Clicar de novo fecha na hora.
-    const authorOpenImg = el('img', { class: 'mark-open', src: chrome.runtime.getURL('assets/autor.png'), alt: '', draggable: 'false', onerror: (e) => e.target.remove() });
-    const authorMark = el('button', { class: 'mark', type: 'button', title: 'Clique na caixa', 'aria-label': 'Marca do autor: clique para abrir a caixa', 'aria-pressed': 'false' },
-      el('span', { class: 'mark-closed', html: `<svg viewBox="0 0 160 160" aria-hidden="true"><defs><clipPath id="ctx-lid"><polygon points="80,50 130,76 80,102 31,76"/></clipPath></defs><g stroke="#0E1C3D" stroke-width="2.7" stroke-linejoin="round" stroke-linecap="round"><polygon points="31,76 80,102 80,152 31,126" fill="#F9CCAF"/><polygon points="80,102 130,76 130,126 80,152" fill="#AD90DA"/><polygon points="80,50 130,76 80,102 31,76" fill="#FBDDC6"/></g><g clip-path="url(#ctx-lid)"><path d="M50 56 L112 86" stroke="#CDB8F5" stroke-width="13" fill="none"/></g><path d="M55.5 63 L104.5 89" stroke="#0E1C3D" stroke-width="1.9" fill="none" stroke-linecap="round"/><polygon points="80,50 130,76 80,102 31,76" fill="none" stroke="#0E1C3D" stroke-width="2.7" stroke-linejoin="round"/><polygon points="134,30 138,40 148,44 138,48 134,58 130,48 120,44 130,40" fill="#B79BF0" stroke="#0E1C3D" stroke-width="2.6" stroke-linejoin="round"/></svg>` }),
-      authorOpenImg,
-      el('span', { class: 'spark s1' }), el('span', { class: 'spark s2' }), el('span', { class: 'spark s3' }));
-    let markTimer = null;
-    const setMarkOpen = (open) => {
-      clearTimeout(markTimer);
-      authorMark.classList.toggle('open', open);
-      authorMark.setAttribute('aria-pressed', String(open));
-      if (open) markTimer = setTimeout(() => setMarkOpen(false), 3600);
-    };
-    authorMark.addEventListener('click', () => setMarkOpen(!authorMark.classList.contains('open')));
 
 
     const foot = el('div', { class: 'foot' },
       btn('link', 'download', 'Exportar', () => h.onExport(), 'Exportar backup de todos os registros'),
       btn('link', 'upload', 'Importar', () => fileInput.click(), 'Importar backup'),
       el('span', { class: 'grow' }), toast,
-      // Marca do autor (discreta). Se a imagem não carregar, ela some sem deixar espaço.
-      authorMark,
       el('button', { class: 'ver', type: 'button', title: 'Copiar informações para suporte (só textos do cabeçalho da conversa)', onclick: () => h.onDiagnostic() },
         `v${chrome.runtime.getManifest().version}`),
       fileInput);
@@ -222,9 +208,20 @@
     // Se a imagem do logo falhar, volta ao raio + nome em texto.
     const brandMark = () => {
       const box = el('span', { class: 'brand-mark' });
-      box.append(el('img', { class: 'brand-logo', src: logoUrl, alt: 'CONTEXTO', draggable: 'false', onerror: () => {
-        box.replaceChildren(el('span', { html: icon('bolt'), style: 'display:contents' }), 'CONTEXTO');
-      } }));
+      const asset = (f) => chrome.runtime.getURL('assets/' + f);
+      // Isotipo (as 3 camadas) separado do texto: ao passar o mouse, as camadas se abrem e voltam (ver .iso no CSS).
+      const layer = (k) => el('img', { class: 'iso-' + k, src: asset(`iso-${k}.png`), alt: '', draggable: 'false' });
+      const failed = () => {
+        // se alguma imagem falhar, usa o logo inteiro; se ele também falhar, volta ao raio + nome
+        box.replaceChildren(el('img', { class: 'brand-logo flat', src: logoUrl, alt: 'CONTEXTO', draggable: 'false', onerror: () => {
+          box.replaceChildren(el('span', { html: icon('bolt'), style: 'display:contents' }), 'CONTEXTO');
+        } }));
+      };
+      const logo = el('span', { class: 'brand-logo', role: 'img', 'aria-label': 'CONTEXTO' },
+        el('span', { class: 'iso' }, layer('bot'), layer('mid'), layer('top')),
+        el('img', { class: 'brand-word', src: asset('wordmark.png'), alt: '', draggable: 'false' }));
+      logo.querySelectorAll('img').forEach((i) => i.addEventListener('error', failed, { once: true }));
+      box.append(logo);
       return box;
     };
     const brandBar = el('div', { class: 'brandbar' },
@@ -232,14 +229,18 @@
       btn('icon-btn', 'x', '', () => h.onToggle(), 'Fechar painel'));
 
     const panel = el('aside', { class: 'panel', 'aria-label': 'CONTEXTO' }, brandBar, scroll, foot);
-    // Aba lateral ("puxador"): o C do logo (fechado) ou um ícone discreto (aberto). Se a imagem falhar, volta ao raio + nome.
-    const logoBox = el('span', { class: 'tab-logo' });
-    logoBox.append(el('img', { src: chrome.runtime.getURL('assets/c.png'), alt: '', draggable: 'false', onerror: () => {
+    // Aba lateral ("puxador"). FECHADO: as 3 camadas do isotipo + uma setinha (que se mexem ao passar o mouse).
+    // ABERTO: uma aba fina na borda do painel, só com uma seta para recolher. Se as imagens falharem: raio + nome.
+    const chev = (d) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${d}"/></svg>`;
+    const tabLayer = (k) => el('img', { class: 'iso-' + k, src: chrome.runtime.getURL(`assets/iso-${k}.png`), alt: '', draggable: 'false' });
+    const logoBox = el('span', { class: 'tab-logo' }, el('span', { class: 'iso' }, tabLayer('bot'), tabLayer('mid'), tabLayer('top')));
+    logoBox.querySelectorAll('img').forEach((i) => i.addEventListener('error', () => {
       logoBox.replaceChildren(el('span', { html: icon('bolt'), style: 'display:contents' }), el('span', { class: 'label' }, 'CONTEXTO'));
-      logoBox.classList.add('fallback');
-    } }));
+      logoBox.classList.add('fallback'); tab.classList.add('fb');
+    }, { once: true }));
     const tab = el('button', { class: 'tab', type: 'button', title: 'Abrir/fechar CONTEXTO', 'aria-label': 'Abrir ou fechar CONTEXTO', onclick: () => h.onToggle() },
-      logoBox, el('span', { class: 'tab-ico', html: icon('panel') }));
+      el('span', { class: 'tab-closed' }, logoBox, el('span', { class: 'tab-arrow', html: chev('M15 6l-6 6 6 6') })),
+      el('span', { class: 'tab-ico', html: chev('M9 6l6 6-6 6') }));
     root.append(tab, panel);
 
     // ------------------------------------------------------------ pedaços
@@ -425,6 +426,10 @@
         host.classList.toggle('open', open);
         document.documentElement.classList.toggle('contexto-open', open);
         window.dispatchEvent(new Event('resize')); // o WhatsApp recalcula o tamanho
+        // a página anima a largura: avisa de novo quando termina, para o WhatsApp acertar o tamanho final
+        clearTimeout(resizeTimer); resizeTimer = setTimeout(() => window.dispatchEvent(new Event('resize')), 380);
+        // animações só ligam depois da primeira pintura (ao carregar, o painel já nasce no estado certo)
+        if (!host.classList.contains('ready')) setTimeout(() => { host.classList.add('ready'); document.documentElement.classList.add('contexto-ready'); }, 120);
       },
 
       flash(msg) {

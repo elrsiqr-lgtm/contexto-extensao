@@ -8,7 +8,7 @@ Notas, demandas e histórico de cada cliente, ao lado das conversas do WhatsApp 
 
 | Pasta | O que é | Situação |
 |---|---|---|
-| [`extensao/`](extensao/) | Extensão do Chrome: o painel ao lado da conversa no WhatsApp Web | Pronta (v1.3.2) |
+| [`extensao/`](extensao/) | Extensão do Chrome: o painel ao lado da conversa no WhatsApp Web | Pronta (v1.3.9) |
 | [`site/`](site/) | Site com a tela de cada cliente: notas salvas, demandas, histórico e (em breve) análise por IA | Estrutura pronta, em modo local |
 | [`banco/`](banco/) | Plano do banco de dados (Supabase) e do ID dos clientes | Planejamento |
 
