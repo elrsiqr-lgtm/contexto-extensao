@@ -61,7 +61,7 @@ Seus dados não são perdidos ao atualizar. Mesmo assim, é boa prática exporta
 ```
 manifest.json        Configuração da extensão (Manifest V3)
 fonts/               Fonte Sora (embutida)
-assets/              Logo do CONTEXTO (assets/logo.png: aba lateral, rodapé do painel e este README)
+assets/              logo.png = logo do CONTEXTO (aba lateral e este README); autor.png = marca do autor (rodapé do painel)
 icons/               Ícones da extensão
 src/
   storage.js         ÚNICO lugar que sabe onde os dados ficam
@@ -112,3 +112,7 @@ Fonte: **Sora**. Ícones de traço fino, cartões arredondados e etiquetas em p�
   }
 }
 ```
+
+---
+
+<p align="center"><img src="assets/autor.png" alt="Marca do autor" width="72"><br><sub>Marca do autor</sub></p>
